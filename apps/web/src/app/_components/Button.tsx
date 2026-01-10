@@ -14,11 +14,11 @@ interface ButtonProps {
 export const Button = ({
   label,
   icon,
-  bgColor = "bg-blue-500",
+  bgColor = "bg-primary",
   txtColor = "text-white",
   borderColor = "",
   page = "#",
-  hoverBgColor = "hover:bg-blue-600",
+  hoverBgColor = "hover:bg-primary-light",
 }: ButtonProps) => {
   return (
     <Link href={`${page}`} passHref>

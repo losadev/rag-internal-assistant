@@ -6,14 +6,14 @@ import { UploadIcon } from "./UploadIcon";
 
 export const NavBar = () => {
   return (
-    <nav className="flex justify-between px-8 py-2 bg-white border-b border-gray-300 items-center">
+    <nav className="flex justify-between px-8 py-2 bg-card border-b border-app items-center">
       <div className="flex gap-4 items-center">
         <Link href="/" passHref>
-          <span className="bg-blue-500 p-2 text-white font-bold rounded-lg">
+          <span className="bg-primary p-2 text-white font-bold rounded-lg">
             RA
           </span>
         </Link>
-        <p className="text-black text-lg font-bold hidden md:inline">
+        <p className="text-app text-lg font-bold hidden md:inline">
           Rag Internal Assistant
         </p>
       </div>

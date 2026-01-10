@@ -33,13 +33,13 @@ export function HowItWorks({
               key={step.number}
               className="flex flex-col items-center text-center"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-700 text-lg font-semibold text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-semibold text-white">
                 {step.number}
               </div>
 
               <h3 className="mt-5 text-lg font-semibold">{step.title}</h3>
 
-              <p className="mt-3 max-w-xs text-sm leading-relaxed text-neutral-600">
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted">
                 {step.description}
               </p>
             </div>
