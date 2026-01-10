@@ -11,6 +11,7 @@
     --color-muted: oklch(0.65 0 0);
     --color-border: oklch(0.92 0.005 250);
     --color-accent: oklch(0.6 0.18 250);
+    --color-icon-bg: oklch(0.95 0.15 250);
 
     /* Tipografía */
     --font-sans: "Geist", system-ui, sans-serif;
@@ -61,6 +62,10 @@
 
   .bg-muted {
     background-color: var(--color-muted);
+  }
+
+  .bg-icon {
+    background-color: var(--color-icon-bg);
   }
 
   .text-primary {
