@@ -112,7 +112,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section>
+        <section className="w-full">
           <HowItWorks
             steps={[
               {

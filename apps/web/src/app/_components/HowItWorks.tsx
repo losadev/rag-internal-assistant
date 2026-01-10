@@ -1,18 +1,12 @@
 type HowItWorksStep = {
-  /** Number shown inside the circle */
   number: number;
-  /** Short title under the circle */
   title: string;
-  /** Supporting text */
   description: string;
 };
 
 type HowItWorksProps = {
-  /** Section title */
   heading?: string;
-  /** Steps to render (usually 3) */
   steps: HowItWorksStep[];
-  /** Optional extra className for outer wrapper */
   className?: string;
 };
 
