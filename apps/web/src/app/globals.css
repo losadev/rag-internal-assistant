@@ -20,20 +20,6 @@
     --radius-default: 0.5rem;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      /* Colores Modo Oscuro */
-      --color-primary: oklch(0.6 0.18 250);
-      --color-primary-light: oklch(0.7 0.2 250);
-      --color-background: oklch(0.145 0 0);
-      --color-foreground: oklch(0.985 0 0);
-      --color-card: oklch(0.2 0 0);
-      --color-muted: oklch(0.3 0 0);
-      --color-border: oklch(0.25 0.005 250);
-      --color-accent: oklch(0.7 0.2 250);
-    }
-  }
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -54,5 +40,63 @@
 
   .rounded-default {
     border-radius: var(--radius-default);
+  }
+
+  /* Clases de color consistentes */
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .bg-primary-light {
+    background-color: var(--color-primary-light);
+  }
+
+  .bg-app {
+    background-color: var(--color-background);
+  }
+
+  .bg-card {
+    background-color: var(--color-card);
+  }
+
+  .bg-muted {
+    background-color: var(--color-muted);
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .text-primary-light {
+    color: var(--color-primary-light);
+  }
+
+  .text-app {
+    color: var(--color-foreground);
+  }
+
+  .text-muted {
+    color: var(--color-muted);
+  }
+
+  .border-app {
+    border-color: var(--color-border);
+  }
+
+  /* Variantes hover */
+  .hover\:bg-primary:hover {
+    background-color: var(--color-primary);
+  }
+
+  .hover\:bg-primary-light:hover {
+    background-color: var(--color-primary-light);
+  }
+
+  .hover\:bg-card:hover {
+    background-color: var(--color-card);
+  }
+
+  .hover\:bg-muted:hover {
+    background-color: var(--color-muted);
   }
 }

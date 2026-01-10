@@ -5,9 +5,9 @@ type Props = {
 
 export const ConversationCard = ({ title, lastMessage }: Props) => {
   return (
-    <div className="rounded-lg border border-gray-300 bg-white p-3 hover:bg-gray-100 cursor-pointer">
-      <h3 className="font-semibold text-black">{title}</h3>
-      <p className="text-gray-500 text-sm">{lastMessage}</p>
+    <div className="rounded-lg border border-app bg-card p-3 hover:bg-muted cursor-pointer">
+      <h3 className="font-semibold text-app">{title}</h3>
+      <p className="text-muted text-sm">{lastMessage}</p>
     </div>
   );
 };

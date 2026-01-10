@@ -3,9 +3,9 @@ import { HowItWorks } from "./_components/HowItWorks";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center  font-sans bg-white">
-      <main className="flex min-h-screen w-full flex-col  items-center gap-16 p-8 sm:items-start text-black">
-        <section className="px-4 py-10 md:py-16 bg-white w-full">
+    <div className="flex min-h-screen items-center justify-center  font-sans bg-app">
+      <main className="flex min-h-screen w-full flex-col  items-center gap-16 p-8 sm:items-start text-app">
+        <section className="px-4 py-10 md:py-16 bg-app w-full">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="mb-6 text-balance text-4xl font-bold tracking-tight text-foreground md:text-6xl">
               Ask questions grounded in your docs. With citations.
@@ -20,10 +20,10 @@ export default function Home() {
                 icon
                 label="Open chat"
                 page="/chat"
-                bgColor="white"
-                txtColor="text-black"
-                borderColor="border border-gray-300"
-                hoverBgColor="hover:bg-gray-100"
+                bgColor="bg-card"
+                txtColor="text-app"
+                borderColor="border border-app"
+                hoverBgColor="hover:bg-muted"
               />
             </div>
           </div>
@@ -33,10 +33,10 @@ export default function Home() {
           <div className="container mx-auto">
             <div className="grid gap-6 md:grid-cols-3">
               {/* Tarjeta 1: RAG with citations */}
-              <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+              <div className="rounded-lg border border-app bg-card p-6 transition-shadow hover:shadow-md">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary bg-opacity-10">
                   <svg
-                    className="h-6 w-6 text-blue-600"
+                    className="h-6 w-6 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -49,20 +49,20 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-app mb-2">
                   RAG with citations
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted">
                   Get accurate answers backed by direct references to your
                   source documents
                 </p>
               </div>
 
               {/* Tarjeta 2: Tools via MCP */}
-              <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+              <div className="rounded-lg border border-app bg-card p-6 transition-shadow hover:shadow-md">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary bg-opacity-10">
                   <svg
-                    className="h-6 w-6 text-blue-600"
+                    className="h-6 w-6 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -75,19 +75,19 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-app mb-2">
                   Tools via MCP
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted">
                   Extend functionality with Model Context Protocol integrations
                 </p>
               </div>
 
               {/* Tarjeta 3: Actions via n8n */}
-              <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+              <div className="rounded-lg border border-app bg-card p-6 transition-shadow hover:shadow-md">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary bg-opacity-10">
                   <svg
-                    className="h-6 w-6 text-blue-600"
+                    className="h-6 w-6 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -100,10 +100,10 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-app mb-2">
                   Actions via n8n
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted">
                   Trigger complex workflows and automations based on chat
                   interactions
                 </p>

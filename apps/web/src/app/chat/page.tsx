@@ -4,16 +4,16 @@ import { SourceCard } from "./_components/SourceCard";
 
 export default function ChatPage() {
   return (
-    <div className="flex bg-white h-full  min-h-screen">
-      <section className="border-r border-gray-300 min-h-full">
+    <div className="flex bg-card h-full  min-h-screen">
+      <section className="border-r border-app min-h-full">
         {/* New chat button */}
-        <div className="border-b border-gray-300 flex items-center justify-center p-4">
-          <button className="bg-blue-700 text-white font-medium p-2 rounded flex items-center gap-2 text-sm min-w-30 hover:bg-blue-600 cursor-pointer text-center flex-1 justify-center">
+        <div className="border-b border-app flex items-center justify-center p-4">
+          <button className="bg-primary text-white font-medium p-2 rounded flex items-center gap-2 text-sm min-w-30 hover:bg-primary-light cursor-pointer text-center flex-1 justify-center">
             + New Chat
           </button>
         </div>
         {/* Conversation */}
-        <div className="px-4 text-black">
+        <div className="px-4 text-app">
           <div className="mt-4 flex flex-col gap-2">
             <ConversationCard
               title="Conversation 1"
@@ -27,12 +27,12 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto"></div>
 
         {/* Input */}
-        <div className="border-t border-gray-300 p-4">
+        <div className="border-t border-app p-4">
           <Input />
         </div>
       </section>
       {/* Sources */}
-      <section className="border-l border-gray-300 text-black w-64">
+      <section className="border-l border-app text-app w-64">
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4">Sources</h2>
           <div className="flex flex-col gap-4">

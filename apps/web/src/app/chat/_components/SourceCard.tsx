@@ -6,9 +6,9 @@ export const SourceCard = ({
   excerpt: string;
 }) => {
   return (
-    <div className="rounded-lg border border-gray-300 bg-white p-4 hover:bg-gray-100 cursor-pointer">
+    <div className="rounded-lg border border-app bg-card p-4 hover:bg-muted cursor-pointer">
       {title}
-      <p className="text-gray-500 text-sm">{excerpt}</p>
+      <p className="text-muted text-sm">{excerpt}</p>
     </div>
   );
 };

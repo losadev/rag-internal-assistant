@@ -10,12 +10,12 @@ export interface DocumentsCardProps {
 
 const Document = ({ format, weight, timestamp }: DocumentsCardProps) => {
   return (
-    <div className="flex  justify-between border border-gray-300 rounded-lg p-4 items-center">
+    <div className="flex  justify-between border border-app rounded-lg p-4 items-center">
       <div className="flex items-center gap-6">
-        <DocumentIcon size={24} className="w-6 h-6 text-blue-600" />
+        <DocumentIcon size={24} className="w-6 h-6 text-primary" />
         <div className="flex flex-col">
-          <h2 className="font-semibold text-black">Document Title</h2>
-          <div className="text-gray-500 space-x-2">
+          <h2 className="font-semibold text-app">Document Title</h2>
+          <div className="text-muted space-x-2">
             <span>{format}</span>
             <span>{weight}</span>
             <span>{timestamp}</span>
@@ -28,7 +28,7 @@ const Document = ({ format, weight, timestamp }: DocumentsCardProps) => {
           className="hover:bg-red-50 p-2 rounded cursor-pointer"
           title="Delete document"
         >
-          <DeleteIcon size={20} className="w-5 h-5 text-red-600" />
+          <DeleteIcon size={20} className="w-5 h-5 text-primary" />
         </button>
       </div>
     </div>
