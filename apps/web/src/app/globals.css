@@ -1,26 +1,55 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Colores Modo Claro */
+  --color-primary: oklch(0.45 0.15 250);
+  --color-primary-light: oklch(0.6 0.18 250);
+  --color-background: oklch(0.99 0 0);
+  --color-foreground: oklch(0.18 0 0);
+  --color-card: oklch(1 0 0);
+  --color-muted: oklch(0.96 0 0);
+  --color-border: oklch(0.92 0.005 250);
+  --color-accent: oklch(0.6 0.18 250);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Tipografía */
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
+
+  /* Border Radius */
+  --radius-default: 0.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Colores Modo Oscuro */
+    --color-primary: oklch(0.6 0.18 250);
+    --color-primary-light: oklch(0.7 0.2 250);
+    --color-background: oklch(0.145 0 0);
+    --color-foreground: oklch(0.985 0 0);
+    --color-card: oklch(0.2 0 0);
+    --color-muted: oklch(0.3 0 0);
+    --color-border: oklch(0.25 0.005 250);
+    --color-accent: oklch(0.7 0.2 250);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Clases auxiliares de tipografía */
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.rounded-default {
+  border-radius: var(--radius-default);
 }
