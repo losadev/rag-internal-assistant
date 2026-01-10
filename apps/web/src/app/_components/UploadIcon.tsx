@@ -4,7 +4,7 @@ interface UploadIconProps {
 }
 
 export function UploadIcon({
-  className = "w-6 h-6",
+  className = "w-4 h-4",
   size = 24,
 }: UploadIconProps) {
   return (
