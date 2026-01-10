@@ -13,7 +13,9 @@ export const NavBar = () => {
             RA
           </span>
         </Link>
-        <p className="text-black text-lg font-bold">Rag Internal Assistant</p>
+        <p className="text-black text-lg font-bold hidden">
+          Rag Internal Assistant
+        </p>
       </div>
       <div className="flex items-center gap-4">
         <Button
