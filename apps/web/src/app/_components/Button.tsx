@@ -23,7 +23,7 @@ export const Button = ({
   return (
     <Link href={`${page}`} passHref>
       <button
-        className={`${bgColor} ${txtColor} text-center font-medium p-2 rounded flex items-center gap-2 text-sm min-w-26 ${borderColor} flex justify-center items-center ${hoverBgColor} cursor-pointer`}
+        className={`${bgColor} ${txtColor} text-center font-medium p-2 rounded flex items-center gap-2 text-sm min-w-30 ${borderColor} flex justify-center items-center ${hoverBgColor} cursor-pointer`}
       >
         {icon}
         {label}
