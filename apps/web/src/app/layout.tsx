@@ -27,10 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        style={{ fontFamily: theme.typography.fontSans }}
-        className={`antialiased`}
-      >
+      <body className={`antialiased`}>
         <NavBar />
         {children}
         <Footer />
