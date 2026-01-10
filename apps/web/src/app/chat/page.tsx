@@ -1,8 +1,16 @@
+"use client";
+import { ChangeEvent, useState } from "react";
 import { ConversationCard } from "./_components/ConversationCard";
 import { Input } from "./_components/Input";
 import { SourceCard } from "./_components/SourceCard";
 
 export default function ChatPage() {
+  const [userInput, setUserInput] = useState<String>("");
+  const [submittedInput, setSubmittedInput] = useState<String>("");
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setUserInput(e.target.value);
+  };
+
   return (
     <div className="flex bg-card h-full  min-h-screen">
       <section className="border-r border-app min-h-full">
@@ -24,11 +32,18 @@ export default function ChatPage() {
       </section>
       <section className="flex flex-col h-screen flex-1">
         {/* Chat messages */}
-        <div className="flex-1 overflow-y-auto"></div>
+        <div className="flex-1 overflow-y-auto text-black">
+          {submittedInput}
+        </div>
 
         {/* Input */}
         <div className="border-t border-app p-4">
-          <Input />
+          <Input
+            onChange={handleInputChange}
+            onClick={() => {
+              setSubmittedInput(userInput);
+            }}
+          />
         </div>
       </section>
       {/* Sources */}
