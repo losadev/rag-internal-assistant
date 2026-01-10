@@ -1,0 +1,9 @@
+{
+  "name": "rag-internal-assistant",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:mcp": "pnpm --filter mcp-server dev",
+    "build": "pnpm -r build"
+  }
+}
