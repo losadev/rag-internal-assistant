@@ -1,10 +1,56 @@
+import { ConversationCard } from "./_components/ConversationCard";
+import { Input } from "./_components/Input";
+import { SourceCard } from "./_components/SourceCard";
+
 export default function ChatPage() {
   return (
-    <div className="flex items-center justify-center w-full h-full bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800">Bienvenido al Chat</h1>
-        <p className="text-lg text-gray-600 mt-4">Este es tu página de chat</p>
-      </div>
+    <div className="flex bg-white h-full  min-h-screen">
+      <section className="border-r border-gray-300 min-h-full">
+        {/* New chat button */}
+        <div className="border-b border-gray-300 flex items-center justify-center p-4">
+          <button className="bg-blue-700 text-white font-medium p-2 rounded flex items-center gap-2 text-sm min-w-30 hover:bg-blue-600 cursor-pointer text-center flex-1 justify-center">
+            + New Chat
+          </button>
+        </div>
+        {/* Conversation */}
+        <div className="px-4 text-black">
+          <div className="mt-4 flex flex-col gap-2">
+            <ConversationCard
+              title="Conversation 1"
+              lastMessage="Last message preview..."
+            />
+          </div>
+        </div>
+      </section>
+      <section className="flex flex-col h-screen flex-1">
+        {/* Chat messages */}
+        <div className="flex-1 overflow-y-auto"></div>
+
+        {/* Input */}
+        <div className="border-t border-gray-300 p-4">
+          <Input />
+        </div>
+      </section>
+      {/* Sources */}
+      <section className="border-l border-gray-300 text-black w-64">
+        <div className="p-4">
+          <h2 className="text-lg font-semibold mb-4">Sources</h2>
+          <div className="flex flex-col gap-4">
+            <SourceCard
+              title="Source Document 1"
+              excerpt="lorem ipsum dolor sit amet"
+            />
+            <SourceCard
+              title="Source Document 2"
+              excerpt="consectetur adipiscing elit"
+            />
+            <SourceCard
+              title="Source Document 3"
+              excerpt="sed do eiusmod tempor incididunt"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

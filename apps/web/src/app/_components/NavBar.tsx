@@ -13,7 +13,7 @@ export const NavBar = () => {
             RA
           </span>
         </Link>
-        <p className="text-black text-lg font-bold hidden">
+        <p className="text-black text-lg font-bold hidden md:inline">
           Rag Internal Assistant
         </p>
       </div>
