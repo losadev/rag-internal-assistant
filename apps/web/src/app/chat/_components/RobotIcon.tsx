@@ -1,6 +1,6 @@
 export function RobotIcon() {
   return (
-    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-500">
+    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-light">
       <svg
         className="w-5 h-5 text-white"
         fill="currentColor"

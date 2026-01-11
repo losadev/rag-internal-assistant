@@ -12,6 +12,7 @@ import {
 import { ChatProvider } from "@/providers/ChatProvider";
 import { useConversationContext } from "@/context";
 import { get } from "http";
+import { ChatMessage } from "./_components/ChatMessage";
 
 export default function ChatPage() {
   const [userInput, setUserInput] = useState<String>("");
@@ -88,8 +89,9 @@ export default function ChatPage() {
             </button>
           </div>
           {/* Conversation */}
-          <div className="px-4 text-app bg-orange-500 overflow-y-scroll">
-            <div className="mt-4 flex flex-col gap-2">
+          <div className="p-4 text-app flex flex-col h-full bg-green-400">
+            <h1 className="font-semibold">Conversations</h1>
+            <div className="mt-4 flex flex-col gap-2 flex-1 bg-orange-400">
               {conversations.map((conversation) => (
                 <ConversationCard
                   key={conversation.id}
@@ -105,17 +107,15 @@ export default function ChatPage() {
         </section>
         <section className=" flex flex-col flex-1 grow h-full">
           {/* Chat messages */}
-          <div className=" overflow-y-auto flex-1 text-black">
-            {actualMessages.map((message, index) => (
-              <div
-                key={index}
-                className={`p-4 ${
-                  message.role === "user" ? "bg-blue-100" : "bg-gray-200"
-                }`}
-              >
-                <p>{message.content}</p>
-              </div>
-            ))}
+          <div className="flex-1  py-8 px-16 space-y-4  overflow-y-auto">
+            {actualMessages &&
+              actualMessages.map((msg, index) => (
+                <ChatMessage
+                  key={index}
+                  message={msg.content}
+                  role={msg.role as "user" | "assistant"}
+                />
+              ))}
           </div>
           {/* Input */}
           <div className="border-t border-app p-4">
