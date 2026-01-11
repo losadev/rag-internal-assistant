@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, KeyboardEvent } from "react";
 
 type Props = {
   onChange?: (value: ChangeEvent<HTMLInputElement>) => void;
@@ -7,12 +7,20 @@ type Props = {
 };
 
 export const Input = ({ onChange, onClick, value }: Props) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onClick && onClick();
+    }
+  };
+
   return (
     <div className="flex gap-2">
       <input
         type="text"
         placeholder="Type your message..."
         onChange={onChange}
+        onKeyPress={handleKeyPress}
         value={value}
         className="flex-1 border text-app border-app rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary ::placeholder-muted"
       />
