@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "./_components/NavBar";
-import { theme } from "./_config/theme";
 import { Footer } from "./_components/Footer";
-import { ConversationContext, useConversationContext } from "@/context";
+import { ChatProvider } from "@/providers/ChatProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +32,9 @@ export default function RootLayout({
         className={`antialiased flex flex-col h-screen ${geistSans.variable} ${geistMono.variable}`}
       >
         <NavBar />
-
-        <main className="flex-1 h-full">{children}</main>
+        <ChatProvider>
+          <main className="flex-1 h-full">{children}</main>
+        </ChatProvider>
 
         <Footer />
       </body>

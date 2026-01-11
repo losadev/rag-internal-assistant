@@ -1,7 +1,14 @@
 "use client";
 import { createContext, useContext } from "react";
 
-export const ConversationContext = createContext<String | undefined>(undefined);
+interface ConversationContextType {
+  conversationId: string;
+  setConversationId: (id: string) => void;
+}
+
+export const ConversationContext = createContext<
+  ConversationContextType | undefined
+>(undefined);
 
 export function useConversationContext() {
   const conversationId = useContext(ConversationContext);
