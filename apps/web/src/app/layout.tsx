@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "./_components/NavBar";
-import { theme } from "./_config/theme";
 import { Footer } from "./_components/Footer";
+import { ChatProvider } from "@/providers/ChatProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,11 +25,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  //const conversationId = useConversationContext();
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body
+        className={`antialiased flex flex-col h-screen ${geistSans.variable} ${geistMono.variable}`}
+      >
         <NavBar />
-        {children}
+        <ChatProvider>
+          <main className="flex-1 h-full">{children}</main>
+        </ChatProvider>
+
         <Footer />
       </body>
     </html>
