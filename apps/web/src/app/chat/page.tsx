@@ -3,10 +3,13 @@ import { ChangeEvent, useState } from "react";
 import { ConversationCard } from "./_components/ConversationCard";
 import { Input } from "./_components/Input";
 import { SourceCard } from "./_components/SourceCard";
+import { createConversation } from "@/lib/supabase-queries";
 
 export default function ChatPage() {
   const [userInput, setUserInput] = useState<String>("");
   const [submittedInput, setSubmittedInput] = useState<String>("");
+  const newChat = createConversation();
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
   };
