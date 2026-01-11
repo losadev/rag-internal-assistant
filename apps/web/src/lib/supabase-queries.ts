@@ -2,10 +2,22 @@ import { supabase } from "./supabase";
 
 // ===== CONVERSATIONS =====
 
-export async function createConversation(title: string) {
+export async function createConversation(title?: string) {
   const { data, error } = await supabase
     .from("conversations")
-    .insert([{ title }])
+    .insert([{ title: title || "New Conversation" }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateTitleConversation(title: string, id: string) {
+  const { data, error } = await supabase
+    .from("conversations")
+    .update({ title, updated_at: new Date().toISOString() })
+    .eq("id", id)
     .select()
     .single();
 
