@@ -15,8 +15,8 @@ import { get } from "http";
 import { ChatMessage } from "./_components/ChatMessage";
 
 export default function ChatPage() {
-  const [userInput, setUserInput] = useState<String>("");
-  const [submittedInput, setSubmittedInput] = useState<String[]>([]);
+  const [userInput, setUserInput] = useState<string>("");
+  const [submittedInput, setSubmittedInput] = useState<string[]>([]);
   const [conversations, setConversations] = useState<Array<any>>([]);
   const { conversationId, setConversationId } = useConversationContext();
   const [actualMessages, setActualMessages] = useState<Array<any>>([]);
@@ -50,8 +50,17 @@ export default function ChatPage() {
 
   const handleInsertMessage = async (message: string) => {
     try {
-      await createMessage(conversationId, "user", message);
-    } catch (error) {}
+      if (message.trim()) {
+        await createMessage(conversationId, "user", message);
+        // Recargar los mensajes después de insertar
+        const messages = await getMessages(conversationId);
+        setActualMessages(messages);
+        // Limpiar el input
+        setUserInput("");
+      }
+    } catch (error) {
+      console.error("Error inserting message:", error);
+    }
   };
 
   useEffect(() => {
@@ -105,9 +114,9 @@ export default function ChatPage() {
             </div>
           </div>
         </section>
-        <section className=" flex flex-col flex-1 grow h-full ">
+        <section className="flex flex-col flex-1 grow h-full">
           {/* Chat messages */}
-          <div className="flex-1 py-8 px-[20em] space-y-4 overflow-y-auto">
+          <div className="flex-1 py-8 px-[20em] space-y-4 overflow-y-auto h-0">
             {actualMessages &&
               actualMessages.map((msg, index) => (
                 <ChatMessage
@@ -124,6 +133,7 @@ export default function ChatPage() {
               onClick={() => {
                 setSubmittedInput([...submittedInput, userInput]);
               }}
+              value={userInput}
             />
           </div>
         </section>

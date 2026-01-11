@@ -27,13 +27,13 @@ export default function RootLayout({
 }>) {
   //const conversationId = useConversationContext();
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`antialiased flex flex-col h-screen ${geistSans.variable} ${geistMono.variable}`}
+        className={`antialiased flex flex-col h-full ${geistSans.variable} ${geistMono.variable}`}
       >
         <NavBar />
         <ChatProvider>
-          <main className="flex-1 h-full">{children}</main>
+          <main className="flex-1 overflow-hidden">{children}</main>
         </ChatProvider>
 
         <Footer />

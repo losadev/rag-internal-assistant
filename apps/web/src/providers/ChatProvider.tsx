@@ -22,8 +22,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [actualConversationId, isLoaded]);
 
-  console.log("ChatProvider - conversationId:", actualConversationId);
-
   return (
     <ConversationContext.Provider
       value={{
