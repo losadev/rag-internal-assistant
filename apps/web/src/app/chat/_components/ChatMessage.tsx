@@ -16,7 +16,7 @@ export const ChatMessage = ({
     >
       <p
         className={`${
-          role === "user" ? "bg-primary text-white" : "bg-white text-black"
+          role === "user" ? "bg-primary text-white" : "bg-gray-200 text-black"
         } p-3 rounded-lg rounded-default max-w-2xl break-words`}
       >
         {message}

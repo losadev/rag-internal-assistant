@@ -107,7 +107,7 @@ export default function ChatPage() {
         </section>
         <section className=" flex flex-col flex-1 grow h-full ">
           {/* Chat messages */}
-          <div className="flex-1   py-8 px-[20em] space-y-4  overflow-y-auto">
+          <div className="flex-1 py-8 px-[20em] space-y-4 overflow-y-auto">
             {actualMessages &&
               actualMessages.map((msg, index) => (
                 <ChatMessage
