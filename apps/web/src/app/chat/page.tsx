@@ -89,9 +89,9 @@ export default function ChatPage() {
             </button>
           </div>
           {/* Conversation */}
-          <div className="p-4 text-app flex flex-col h-full bg-green-400">
+          <div className="p-4 text-app flex flex-col h-full ">
             <h1 className="font-semibold">Conversations</h1>
-            <div className="mt-4 flex flex-col gap-2 flex-1 bg-orange-400">
+            <div className="mt-4 flex flex-col gap-2 flex-1 ">
               {conversations.map((conversation) => (
                 <ConversationCard
                   key={conversation.id}
@@ -105,9 +105,9 @@ export default function ChatPage() {
             </div>
           </div>
         </section>
-        <section className=" flex flex-col flex-1 grow h-full">
+        <section className=" flex flex-col flex-1 grow h-full ">
           {/* Chat messages */}
-          <div className="flex-1  py-8 px-16 space-y-4  overflow-y-auto">
+          <div className="flex-1   py-8 px-[20em] space-y-4  overflow-y-auto">
             {actualMessages &&
               actualMessages.map((msg, index) => (
                 <ChatMessage
