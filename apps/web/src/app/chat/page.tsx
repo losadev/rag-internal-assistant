@@ -4,6 +4,7 @@ import { ConversationCard } from "./_components/ConversationCard";
 import { Input } from "./_components/Input";
 import { SourceCard } from "./_components/SourceCard";
 import { SnippetModal } from "./_components/SnippetModal";
+import { LoadingIndicator } from "./_components/LoadingIndicator";
 import {
   createConversation,
   createMessage,
@@ -106,22 +107,32 @@ export default function ChatPage() {
 
     try {
       setIsLoading(true);
+      const userMessage = userInput as string;
 
-      // Guardar mensaje del usuario
-      await createMessage(conversationId, "user", userInput as string);
+      // Mostrar el mensaje del usuario inmediatamente (optimistic update)
+      setActualMessages((prev) => [
+        ...prev,
+        { role: "user", content: userMessage, id: Date.now() },
+      ]);
+
+      // Limpiar input inmediatamente
+      setUserInput("");
+
+      // Guardar mensaje del usuario en BD
+      await createMessage(conversationId, "user", userMessage);
 
       // Actualizar el título de la conversación con el primer mensaje si es la primera
       const messages = await getMessages(conversationId);
       if (messages.length === 1) {
         // Es el primer mensaje, actualizar el título
         await updateTitleConversation(
-          userInput.substring(0, 50),
+          userMessage.substring(0, 50),
           conversationId
         );
       }
 
       // Obtener respuesta del RAG
-      const response = await sendChatMessage(userInput as string);
+      const response = await sendChatMessage(userMessage);
 
       if (!response) {
         throw new Error("No response from server");
@@ -130,14 +141,16 @@ export default function ChatPage() {
       // Guardar sources
       setSources(response.sources || []);
 
+      // Mostrar respuesta de la IA inmediatamente
+      setActualMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: response.answer, id: Date.now() },
+      ]);
+
       // Guardar respuesta del LLM en la BD
       await createMessage(conversationId, "assistant", response.answer);
 
-      // Limpiar input
-      setUserInput("");
-
-      // Actualizar mensajes en pantalla y lista de conversaciones
-      await getMessagesFromDb();
+      // Actualizar lista de conversaciones
       await getConversationsList();
     } catch (error: any) {
       console.error("Error submitting input:", error);
@@ -237,26 +250,42 @@ export default function ChatPage() {
                 role={msg.role as "user" | "assistant"}
               />
             ))}
+          {isLoading && <LoadingIndicator />}
         </div>
         {/* Input */}
-        <div className="border-t border-app p-4 flex gap-2 flex-shrink-0 bg-app">
-          <Input
-            onChange={handleInputChange}
-            onClick={() => {
-              setSubmittedInput([...submittedInput, userInput]);
-              onSend();
-            }}
-            isLoading={isLoading}
-            value={userInput}
-          />
-          <button
-            onClick={handleClearChat}
-            disabled={isLoading || !conversationId}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-            title="Limpiar todos los mensajes de esta conversación"
-          >
-            Limpiar chat
-          </button>
+        <div className="border-t border-app p-4 flex-shrink-0 bg-app">
+          <div className="flex flex-col gap-2 justify-center px-4">
+            <Input
+              onChange={handleInputChange}
+              onSubmit={() => {
+                setSubmittedInput([...submittedInput, userInput]);
+                onSend();
+              }}
+              isLoading={isLoading}
+              value={userInput}
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setSubmittedInput([...submittedInput, userInput]);
+                  onSend();
+                }}
+                disabled={isLoading || !userInput.trim()}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors w-fit"
+                title="Enviar mensaje"
+              >
+                {isLoading ? "Enviando..." : "Enviar"}
+              </button>
+              <button
+                onClick={handleClearChat}
+                disabled={isLoading || !conversationId}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors w-fit"
+                title="Limpiar todos los mensajes de esta conversación"
+              >
+                Limpiar chat
+              </button>
+            </div>
+          </div>
         </div>
       </section>
       {/* Sources */}
