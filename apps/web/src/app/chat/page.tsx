@@ -9,7 +9,6 @@ import {
   getConversations,
   getMessages,
 } from "@/lib/supabase-queries";
-import { ChatProvider } from "@/providers/ChatProvider";
 import { useConversationContext } from "@/context";
 import { sendChatMessage } from "@/lib/api";
 import { ChatMessage } from "./_components/ChatMessage";
@@ -87,81 +86,79 @@ export default function ChatPage() {
   };
 
   return (
-    <ChatProvider>
-      <div className="flex bg-card h-full ">
-        <section className="border-r border-app h-full overflow-y-auto w-64">
-          {/* New chat button */}
-          <div className="border-b border-app flex items-center justify-center p-4">
-            <button
-              onClick={() => {
-                handleNewConversation();
-              }}
-              className="bg-primary text-white font-medium p-2 rounded flex items-center gap-2 text-sm min-w-30 hover:bg-primary-light cursor-pointer text-center flex-1 justify-center"
-            >
-              + New Chat
-            </button>
+    <div className="flex bg-card h-full ">
+      <section className="border-r border-app h-full overflow-y-auto w-64">
+        {/* New chat button */}
+        <div className="border-b border-app flex items-center justify-center p-4">
+          <button
+            onClick={() => {
+              handleNewConversation();
+            }}
+            className="bg-primary text-white font-medium p-2 rounded flex items-center gap-2 text-sm min-w-30 hover:bg-primary-light cursor-pointer text-center flex-1 justify-center"
+          >
+            + New Chat
+          </button>
+        </div>
+        {/* Conversation */}
+        <div className="p-4 text-app flex flex-col h-full ">
+          <h1 className="font-semibold">Conversations</h1>
+          <div className="mt-4 flex flex-col gap-2 flex-1 ">
+            {conversations.map((conversation) => (
+              <ConversationCard
+                key={conversation.id}
+                title={conversation.title}
+                lastMessage="Last message preview..."
+                onClick={() => {
+                  setConversationId(conversation.id);
+                }}
+              />
+            ))}
           </div>
-          {/* Conversation */}
-          <div className="p-4 text-app flex flex-col h-full ">
-            <h1 className="font-semibold">Conversations</h1>
-            <div className="mt-4 flex flex-col gap-2 flex-1 ">
-              {conversations.map((conversation) => (
-                <ConversationCard
-                  key={conversation.id}
-                  title={conversation.title}
-                  lastMessage="Last message preview..."
-                  onClick={() => {
-                    setConversationId(conversation.id);
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-        <section className=" flex flex-col flex-1 grow h-full ">
-          {/* Chat messages */}
-          <div className="flex-1 py-8 px-[20em] space-y-4 overflow-y-auto">
-            {actualMessages &&
-              actualMessages.map((msg, index) => (
-                <ChatMessage
-                  key={index}
-                  message={msg.content}
-                  role={msg.role as "user" | "assistant"}
-                />
-              ))}
-          </div>
-          {/* Input */}
-          <div className="border-t border-app p-4">
-            <Input
-              onChange={handleInputChange}
-              onClick={() => {
-                setSubmittedInput([...submittedInput, userInput]);
-                onSend();
-              }}
+        </div>
+      </section>
+      <section className=" flex flex-col flex-1 grow h-full ">
+        {/* Chat messages */}
+        <div className="flex-1 py-8 px-[20em] space-y-4 overflow-y-auto">
+          {actualMessages &&
+            actualMessages.map((msg, index) => (
+              <ChatMessage
+                key={index}
+                message={msg.content}
+                role={msg.role as "user" | "assistant"}
+              />
+            ))}
+        </div>
+        {/* Input */}
+        <div className="border-t border-app p-4">
+          <Input
+            onChange={handleInputChange}
+            onClick={() => {
+              setSubmittedInput([...submittedInput, userInput]);
+              onSend();
+            }}
+          />
+        </div>
+      </section>
+      {/* Sources */}
+      <section className="border-l border-app text-app w-64 h-full overflow-y-auto">
+        <div className="p-4">
+          <h2 className="text-lg font-semibold mb-4">Sources</h2>
+          <div className="flex flex-col gap-4">
+            <SourceCard
+              title="Source Document 1"
+              excerpt="lorem ipsum dolor sit amet"
+            />
+            <SourceCard
+              title="Source Document 2"
+              excerpt="consectetur adipiscing elit"
+            />
+            <SourceCard
+              title="Source Document 3"
+              excerpt="sed do eiusmod tempor incididunt"
             />
           </div>
-        </section>
-        {/* Sources */}
-        <section className="border-l border-app text-app w-64 h-full overflow-y-auto">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold mb-4">Sources</h2>
-            <div className="flex flex-col gap-4">
-              <SourceCard
-                title="Source Document 1"
-                excerpt="lorem ipsum dolor sit amet"
-              />
-              <SourceCard
-                title="Source Document 2"
-                excerpt="consectetur adipiscing elit"
-              />
-              <SourceCard
-                title="Source Document 3"
-                excerpt="sed do eiusmod tempor incididunt"
-              />
-            </div>
-          </div>
-        </section>
-      </div>
-    </ChatProvider>
+        </div>
+      </section>
+    </div>
   );
 }

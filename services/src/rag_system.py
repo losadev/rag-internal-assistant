@@ -1,8 +1,8 @@
-from config import *
-from prompts import *
+from .config import EMBEDDING_MODEL, GENERATION_MODEL, PERSIST_DIR, SEARCH_K
+from .prompts import RAG_PROMPT
 
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda
 
@@ -58,7 +58,7 @@ def initialize_rag_system():
 
     # retrieve -> (si vacío) -> LLM
     def answer_question(question: str):
-        docs = retriever.get_relevant_documents(question)
+        docs = retriever.invoke(question)
 
         # si no hay evidencia, no inventamos
         if not docs:
