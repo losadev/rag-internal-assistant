@@ -241,7 +241,7 @@ export default function ChatPage() {
       </section>
       <section className="flex flex-col flex-1 h-screen overflow-hidden">
         {/* Chat messages */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-[20em] py-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-8 py-4 space-y-4">
           {actualMessages &&
             actualMessages.map((msg, index) => (
               <ChatMessage
