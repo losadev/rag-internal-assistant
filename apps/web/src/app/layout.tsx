@@ -52,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`antialiased flex flex-col h-full overflow-hidden ${geistSans.variable} ${geistMono.variable}`}
+        className={`antialiased flex flex-col h-full overflow-hidden w-full ${geistSans.variable} ${geistMono.variable}`}
       >
         <RootLayoutContent>{children}</RootLayoutContent>
       </body>
