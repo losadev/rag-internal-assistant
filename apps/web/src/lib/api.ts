@@ -1,13 +1,21 @@
 import type { ChatResponse } from "./types";
 
-export async function sendChatMessage(message: string): Promise<ChatResponse> {
+export async function sendChatMessage(
+  message: string,
+  conversationId?: string,
+  messageId?: string
+): Promise<ChatResponse> {
   console.log("📤 Sending message to server:", message);
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({
+        message,
+        conversation_id: conversationId,
+        message_id: messageId,
+      }),
     });
 
     console.log("📥 Response status:", res.status);

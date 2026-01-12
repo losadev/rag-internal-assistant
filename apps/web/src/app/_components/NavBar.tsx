@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "./Button";
 import { PlusIcon } from "./PlusIcon";
 import { UploadIcon } from "./UploadIcon";
+import { ChatIcon } from "./ChatIconComponent";
 
 export const NavBar = () => {
   return (
@@ -19,8 +20,8 @@ export const NavBar = () => {
       </div>
       <div className="flex items-center gap-4">
         <Button
-          icon={<PlusIcon />}
-          label="New Chat"
+          icon={<ChatIcon />}
+          label="Chat"
           bgColor="white"
           txtColor="text-black"
           borderColor="border border-gray-300"

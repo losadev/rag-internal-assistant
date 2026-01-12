@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DocumentsCard } from "./_components/DocumentsCard";
 import { Header } from "./_components/Header";
 import { KnowledgeBaseCard } from "./_components/KnowledgeBase Card";
@@ -11,18 +11,34 @@ export default function UploadPage() {
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
   const [knowledgeBaseData, setKnowledgeBaseData] = useState({
-    documents: 3,
-    chunks: 84,
-    lastUpdated: "2026-01-08",
+    documents: 0,
+    chunks: 0,
+    lastUpdated: "",
   });
+
+  const fetchDocumentsCount = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/documents/count");
+      const data = await res.json();
+      if (data.status === "ok") {
+        setKnowledgeBaseData({
+          documents: data.documents,
+          chunks: data.chunks,
+          lastUpdated: new Date().toISOString().split("T")[0],
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching documents count:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocumentsCount();
+  }, []);
 
   const handleUploadSuccess = () => {
     setRefreshKey((prev) => prev + 1);
-    setKnowledgeBaseData((prev) => ({
-      ...prev,
-      documents: prev.documents + 1,
-      lastUpdated: new Date().toISOString().split("T")[0],
-    }));
+    fetchDocumentsCount();
   };
 
   return (
