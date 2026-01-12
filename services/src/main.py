@@ -1,18 +1,29 @@
-#from langchain_chroma import Chroma
-#from langchain_openai import OpenAIEmbeddings
-from langchain_openai import ChatOpenAI
-# embeddings = OpenAIEmbeddings(chunk_size=100, model="gpt-4o-mini")
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List, Optional
+from rag_system import initialize_rag_system  # importa tu initialize_rag_system
 
-# vector_store = Chroma(
-#     collection_name="internal-assistant-docs",
-#     embedding_function=embeddings,
-#     persist_directory="./chroma_langchain_db",  # Where to save data locally, remove if not necessary
-# )
+app = FastAPI(title="AI Service")
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+rag_chain, _ = initialize_rag_system()
 
-pregunta = "¿En qué año llegó el ser humano a la Luna por primera vez?"
 
-response = llm.invoke(pregunta)
+class ChatRequest(BaseModel):
+    message: str
 
-print(response.content)
+
+class Source(BaseModel):
+    document: str
+    snippet: str
+    page: Optional[int] = None
+
+
+class ChatResponse(BaseModel):
+    answer: str
+    sources: List[Source]
+
+
+@app.post("/chat", response_model=ChatResponse)
+def chat(req: ChatRequest):
+    result = rag_chain.invoke(req.message)
+    return result

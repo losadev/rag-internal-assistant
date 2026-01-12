@@ -4,7 +4,7 @@ QUERY_MODEL = "gpt-4o-mini" # hace multiples queries, por lo tanto es mas econom
 GENERATION_MODEL = "gpt-4o" # genera la respuesta final, por lo tanto es mas caro
 
 # Configuracion de la base de datos vectorial
-CHROMA_DB_PATH = "C:\\Users\\Pablo\\Desktop\\Cursos Coding\\Curso Langchain y Langgraph\\Tema 3\\chroma_db"
+PERSIST_DIR = "C:\\Users\\Pablo\\Desktop\\Cursos Coding\\Curso Langchain y Langgraph\\Tema 3\\chroma_db"
 
 # Configuracion del retriever
 SEARCH_TYPE = "mmr"
