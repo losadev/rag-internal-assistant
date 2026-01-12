@@ -1,0 +1,5 @@
+export const config = {
+  n8nWebhookUrl:
+    process.env.N8N_WEBHOOK_URL ||
+    "https://n8n-n8n.zbifex.easypanel.host/webhook/create-task",
+};
