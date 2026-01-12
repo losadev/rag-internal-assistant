@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional
-from rag_system import initialize_rag_system  # importa tu initialize_rag_system
+from rag_system import initialize_rag_system
 
 app = FastAPI(title="AI Service")
 

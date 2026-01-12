@@ -11,7 +11,7 @@ import {
 } from "@/lib/supabase-queries";
 import { ChatProvider } from "@/providers/ChatProvider";
 import { useConversationContext } from "@/context";
-import { get } from "http";
+import { sendChatMessage } from "@/lib/api";
 import { ChatMessage } from "./_components/ChatMessage";
 
 export default function ChatPage() {
@@ -20,6 +20,7 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState<Array<any>>([]);
   const { conversationId, setConversationId } = useConversationContext();
   const [actualMessages, setActualMessages] = useState<Array<any>>([]);
+  const [llmMessages, setLlmMessages] = useState<Array<any>>([]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
@@ -73,6 +74,18 @@ export default function ChatPage() {
     }
   }, [conversationId]);
 
+  const onSend = async () => {
+    try {
+      const response = await sendChatMessage(userInput as string);
+      setLlmMessages([...llmMessages, userInput]);
+
+      // Guardar respuesta del LLM en la BD
+      await createMessage(conversationId, "assistant", response.answer);
+    } catch (error) {
+      console.error("Error submitting input:", error);
+    }
+  };
+
   return (
     <ChatProvider>
       <div className="flex bg-card h-full ">
@@ -123,6 +136,7 @@ export default function ChatPage() {
               onChange={handleInputChange}
               onClick={() => {
                 setSubmittedInput([...submittedInput, userInput]);
+                onSend();
               }}
             />
           </div>
