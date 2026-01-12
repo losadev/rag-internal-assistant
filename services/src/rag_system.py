@@ -5,6 +5,9 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_chroma import Chroma
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda
+from langchain_community.document_loaders import PyPDFLoader, TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+import os
 
 def initialize_rag_system():
     # Vector DB (docs -> embeddings)
@@ -82,6 +85,41 @@ def initialize_rag_system():
 
     rag_chain = RunnableLambda(answer_question)
 
-    return rag_chain, retriever
+    return rag_chain, vector_store
 
-    
+
+def add_documents_to_rag(file_path: str, vector_store):
+    """Carga un documento (PDF, TXT, Markdown) al vector store del RAG"""
+    try:
+        docs = []
+        
+        # Detectar tipo de archivo y cargar
+        if file_path.lower().endswith('.pdf'):
+            loader = PyPDFLoader(file_path)
+            docs = loader.load()
+        elif file_path.lower().endswith(('.txt', '.md')):
+            loader = TextLoader(file_path)
+            docs = loader.load()
+        else:
+            raise ValueError("Solo se soportan PDF, TXT y Markdown")
+        
+        if not docs:
+            raise ValueError("No se pudieron cargar documentos del archivo")
+        
+        # Dividir documentos en chunks
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200
+        )
+        chunks = text_splitter.split_documents(docs)
+        
+        # Agregar al vector store
+        vector_store.add_documents(chunks)
+        
+        # Limpiar archivo temporal
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        return True
+    except Exception as e:
+        raise Exception(f"Error cargando documento: {str(e)}")

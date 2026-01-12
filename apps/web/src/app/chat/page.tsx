@@ -20,6 +20,7 @@ export default function ChatPage() {
   const { conversationId, setConversationId } = useConversationContext();
   const [actualMessages, setActualMessages] = useState<Array<any>>([]);
   const [llmMessages, setLlmMessages] = useState<Array<any>>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
@@ -54,10 +55,6 @@ export default function ChatPage() {
     } catch (error) {}
   };
 
-  useEffect(() => {
-    handleInsertMessage(submittedInput[submittedInput.length - 1] as string);
-  }, [submittedInput]);
-
   const getMessagesFromDb = async () => {
     try {
       const messages = await getMessages(conversationId);
@@ -74,14 +71,29 @@ export default function ChatPage() {
   }, [conversationId]);
 
   const onSend = async () => {
+    if (isLoading || !userInput.trim()) return;
+
     try {
+      setIsLoading(true);
+
+      // Guardar mensaje del usuario
+      await createMessage(conversationId, "user", userInput as string);
+
+      // Obtener respuesta del RAG
       const response = await sendChatMessage(userInput as string);
-      setLlmMessages([...llmMessages, userInput]);
 
       // Guardar respuesta del LLM en la BD
       await createMessage(conversationId, "assistant", response.answer);
+
+      // Limpiar input
+      setUserInput("");
+
+      // Actualizar mensajes en pantalla
+      await getMessagesFromDb();
     } catch (error) {
       console.error("Error submitting input:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -136,6 +148,8 @@ export default function ChatPage() {
               setSubmittedInput([...submittedInput, userInput]);
               onSend();
             }}
+            isLoading={isLoading}
+            value={userInput}
           />
         </div>
       </section>
