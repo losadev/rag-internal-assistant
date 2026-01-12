@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { UploadIcon } from "@/app/_components/UploadIcon";
 
-export const UploadFileCard = () => {
+interface UploadFileCardProps {
+  onUploadSuccess?: () => void;
+}
+
+export const UploadFileCard = ({ onUploadSuccess }: UploadFileCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
@@ -46,6 +50,7 @@ export const UploadFileCard = () => {
           type: "success",
           text: `${file.name} cargado exitosamente`,
         });
+        onUploadSuccess?.();
       } else {
         setMessage({
           type: "error",

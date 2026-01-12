@@ -98,3 +98,12 @@ export async function deleteMessage(id: string) {
 
   if (error) throw error;
 }
+
+export async function clearConversationMessages(conversationId: string) {
+  const { error } = await supabase
+    .from("messages")
+    .delete()
+    .eq("conversation_id", conversationId);
+
+  if (error) throw error;
+}
