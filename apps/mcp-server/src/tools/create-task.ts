@@ -29,6 +29,10 @@ export function registerCreateTaskTool(server: McpServer) {
 
         console.log("📤 Sending task to n8n:", validated);
 
+        if (!config.n8nWebhookUrl) {
+          throw new Error("n8n webhook URL is not configured");
+        }
+
         // Call n8n webhook
         const response = await fetch(config.n8nWebhookUrl, {
           method: "POST",
