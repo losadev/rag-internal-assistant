@@ -25,11 +25,49 @@ export default function ChatPage() {
   const [actualMessages, setActualMessages] = useState<Array<any>>([]);
   const [llmMessages, setLlmMessages] = useState<Array<any>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [sources, setSources] = useState<Array<any>>([]);
   const [selectedSnippet, setSelectedSnippet] = useState<{
     title: string;
     snippet: string;
   } | null>(null);
+
+  // Guardar conversationId en localStorage cuando cambia
+  useEffect(() => {
+    if (conversationId) {
+      localStorage.setItem("lastConversationId", conversationId);
+    }
+  }, [conversationId]);
+
+  // Guardar sources en localStorage cuando cambian
+  useEffect(() => {
+    if (conversationId && sources.length > 0) {
+      localStorage.setItem(
+        `sources_${conversationId}`,
+        JSON.stringify(sources)
+      );
+    }
+  }, [sources, conversationId]);
+
+  // Restaurar conversationId y sources al cargar la página
+  useEffect(() => {
+    const savedConversationId = localStorage.getItem("lastConversationId");
+    if (savedConversationId && !conversationId) {
+      setConversationId(savedConversationId);
+
+      // Restaurar sources del último chat
+      const savedSources = localStorage.getItem(
+        `sources_${savedConversationId}`
+      );
+      if (savedSources) {
+        try {
+          setSources(JSON.parse(savedSources));
+        } catch (e) {
+          console.error("Error parsing saved sources:", e);
+        }
+      }
+    }
+  }, []);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
@@ -89,10 +127,13 @@ export default function ChatPage() {
 
   const getMessagesFromDb = async () => {
     try {
+      setIsLoadingMessages(true);
       const messages = await getMessages(conversationId);
       setActualMessages(messages);
     } catch (error) {
       console.error("Error fetching messages:", error);
+    } finally {
+      setIsLoadingMessages(false);
     }
   };
 
@@ -215,9 +256,9 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-app overflow-hidden">
+    <div className="flex h-full   ">
       {/* Sidebar */}
-      <section className="border-r border-app w-64 h-screen overflow-y-auto">
+      <section className="border-r border-app w-64 h-full">
         <div className="p-4">
           <button
             onClick={handleNewConversation}
@@ -239,18 +280,26 @@ export default function ChatPage() {
           </div>
         </div>
       </section>
-      <section className="flex flex-col flex-1 h-screen overflow-hidden">
+      <section className="flex flex-col flex-1 ">
         {/* Chat messages */}
         <div className="flex-1 min-h-0 overflow-y-auto px-8 py-4 space-y-4">
-          {actualMessages &&
-            actualMessages.map((msg, index) => (
-              <ChatMessage
-                key={index}
-                message={msg.content}
-                role={msg.role as "user" | "assistant"}
-              />
-            ))}
-          {isLoading && <LoadingIndicator />}
+          {isLoadingMessages ? (
+            <div className="flex items-center justify-center h-full">
+              <LoadingIndicator text="Cargando mensajes" />
+            </div>
+          ) : (
+            <>
+              {actualMessages &&
+                actualMessages.map((msg, index) => (
+                  <ChatMessage
+                    key={index}
+                    message={msg.content}
+                    role={msg.role as "user" | "assistant"}
+                  />
+                ))}
+              {isLoading && <LoadingIndicator />}
+            </>
+          )}
         </div>
         {/* Input */}
         <div className="border-t border-app p-4 flex-shrink-0 bg-app">
