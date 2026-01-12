@@ -8,6 +8,7 @@ import {
   createMessage,
   getConversations,
   getMessages,
+  clearConversationMessages,
 } from "@/lib/supabase-queries";
 import { useConversationContext } from "@/context";
 import { sendChatMessage } from "@/lib/api";
@@ -102,40 +103,59 @@ export default function ChatPage() {
     }
   };
 
+  const handleClearChat = async () => {
+    if (!conversationId) {
+      alert("No hay conversación activa");
+      return;
+    }
+
+    if (
+      !confirm(
+        "¿Estás seguro de que deseas borrar todos los mensajes de esta conversación?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await clearConversationMessages(conversationId);
+      setActualMessages([]);
+      console.log("✓ Conversación limpiada");
+    } catch (error: any) {
+      console.error("Error clearing chat:", error);
+      alert(`Error al limpiar el chat: ${error?.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex bg-card h-full ">
-      <section className="border-r border-app h-full overflow-y-auto w-64">
-        {/* New chat button */}
-        <div className="border-b border-app flex items-center justify-center p-4">
+    <div className="flex h-screen bg-app overflow-hidden">
+      {/* Sidebar */}
+      <section className="border-r border-app w-64 h-screen overflow-y-auto">
+        <div className="p-4">
           <button
-            onClick={() => {
-              handleNewConversation();
-            }}
-            className="bg-primary text-white font-medium p-2 rounded flex items-center gap-2 text-sm min-w-30 hover:bg-primary-light cursor-pointer text-center flex-1 justify-center"
+            onClick={handleNewConversation}
+            className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
           >
-            + New Chat
+            + New Conversation
           </button>
-        </div>
-        {/* Conversation */}
-        <div className="p-4 text-app flex flex-col h-full ">
-          <h1 className="font-semibold">Conversations</h1>
-          <div className="mt-4 flex flex-col gap-2 flex-1 ">
-            {conversations.map((conversation) => (
+          <div className="mt-4 space-y-2">
+            {conversations.map((conv) => (
               <ConversationCard
-                key={conversation.id}
-                title={conversation.title}
-                lastMessage="Last message preview..."
-                onClick={() => {
-                  setConversationId(conversation.id);
-                }}
+                key={conv.id}
+                title={conv.title}
+                isActive={conversationId === conv.id}
+                onClick={() => setConversationId(conv.id)}
               />
             ))}
           </div>
         </div>
       </section>
-      <section className=" flex flex-col flex-1 grow h-full ">
+      <section className="flex flex-col flex-1 h-screen overflow-hidden">
         {/* Chat messages */}
-        <div className="flex-1 py-8 px-[20em] space-y-4 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto px-[20em] py-4 space-y-4">
           {actualMessages &&
             actualMessages.map((msg, index) => (
               <ChatMessage
@@ -146,7 +166,7 @@ export default function ChatPage() {
             ))}
         </div>
         {/* Input */}
-        <div className="border-t border-app p-4">
+        <div className="border-t border-app p-4 flex gap-2 flex-shrink-0 bg-app">
           <Input
             onChange={handleInputChange}
             onClick={() => {
@@ -156,10 +176,18 @@ export default function ChatPage() {
             isLoading={isLoading}
             value={userInput}
           />
+          <button
+            onClick={handleClearChat}
+            disabled={isLoading || !conversationId}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+            title="Limpiar todos los mensajes de esta conversación"
+          >
+            Limpiar chat
+          </button>
         </div>
       </section>
       {/* Sources */}
-      <section className="border-l border-app text-app w-64 h-full overflow-y-auto">
+      <section className="border-l border-app text-app w-64 h-screen overflow-y-auto">
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4">Sources</h2>
           <div className="flex flex-col gap-4">
