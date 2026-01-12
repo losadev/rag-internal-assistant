@@ -82,6 +82,10 @@ export default function ChatPage() {
       // Obtener respuesta del RAG
       const response = await sendChatMessage(userInput as string);
 
+      if (!response) {
+        throw new Error("No response from server");
+      }
+
       // Guardar respuesta del LLM en la BD
       await createMessage(conversationId, "assistant", response.answer);
 
@@ -90,8 +94,9 @@ export default function ChatPage() {
 
       // Actualizar mensajes en pantalla
       await getMessagesFromDb();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting input:", error);
+      alert(`Error: ${error?.message || "Unknown error occurred"}`);
     } finally {
       setIsLoading(false);
     }
