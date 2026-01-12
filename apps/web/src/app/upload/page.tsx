@@ -42,14 +42,14 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="bg-app min-h-screen px-40 py-8">
+    <div className="bg-app min-h-screen px-4 md:px-8 lg:px-20 xl:px-40 py-4 md:py-8">
       <Header />
-      <section className="mt-8 flex gap-8">
-        <div className="flex flex-2 flex-col gap-6">
+      <section className="mt-4 md:mt-8 flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-8">
+        <div className="flex flex-1 flex-col gap-4 md:gap-6">
           <UploadFileCard onUploadSuccess={handleUploadSuccess} />
           <DocumentsCard key={refreshKey} />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 lg:max-w-md">
           <KnowledgeBaseCard
             key={refreshKey}
             documents={knowledgeBaseData.documents}

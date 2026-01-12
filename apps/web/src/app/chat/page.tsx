@@ -31,6 +31,7 @@ export default function ChatPage() {
     title: string;
     snippet: string;
   } | null>(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Guardar conversationId en localStorage cuando cambia
   useEffect(() => {
@@ -265,13 +266,76 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-full   ">
-      {/* Sidebar */}
-      {/* Sidebar de conversaciones - oculto en móviles */}
-      <section className="hidden md:flex md:flex-col border-r border-app w-64 lg:w-72 h-full">
-        <div className="p-3 md:p-4">
+    <div className="flex h-full w-full overflow-hidden relative">
+      {/* Backdrop para móviles */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Botón con icono de chat para móviles */}
+      <button
+        onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-primary text-white rounded-lg shadow-lg"
+        aria-label="Toggle conversations"
+      >
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          />
+        </svg>
+      </button>
+
+      {/* Sidebar de conversaciones - deslizable en móviles, fijo en desktop */}
+      <section
+        className={`
+          fixed md:relative inset-y-0 left-0 z-50
+          transform transition-transform duration-300 ease-in-out
+          ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0 md:flex md:flex-col
+          border-r border-app w-64 lg:w-72 h-full bg-white
+        `}
+      >
+        <div className="p-3 md:p-4 h-full overflow-y-auto">
+          {/* Botón cerrar para móviles */}
+          <div className="flex items-center justify-between mb-3 md:hidden">
+            <h2 className="text-lg font-semibold text-app">Conversations</h2>
+            <button
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="p-1 hover:bg-gray-100 rounded transition-colors"
+              aria-label="Close sidebar"
+            >
+              <svg
+                className="w-6 h-6 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
           <button
-            onClick={handleNewConversation}
+            onClick={() => {
+              handleNewConversation();
+              setIsMobileSidebarOpen(false);
+            }}
             className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors text-sm md:text-base"
           >
             + New Conversation
@@ -283,7 +347,10 @@ export default function ChatPage() {
                 title={conv.title}
                 lastMessage={conv.lastMessage}
                 isActive={conversationId === conv.id}
-                onClick={() => setConversationId(conv.id)}
+                onClick={() => {
+                  setConversationId(conv.id);
+                  setIsMobileSidebarOpen(false);
+                }}
                 onDelete={(e) => handleDeleteConversation(conv.id, e)}
               />
             ))}
@@ -291,9 +358,9 @@ export default function ChatPage() {
         </div>
       </section>
       {/* Sección principal del chat */}
-      <section className="flex flex-col flex-1 ">
+      <section className="flex flex-col flex-1 min-w-0">
         {/* Chat messages */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 py-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 md:px-8 py-4 space-y-4 w-full">
           {isLoadingMessages ? (
             <div className="flex items-center justify-center h-full">
               <LoadingIndicator text="Cargando mensajes" />
@@ -324,14 +391,14 @@ export default function ChatPage() {
               isLoading={isLoading}
               value={userInput}
             />
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-col md:flex-row gap-2">
               <button
                 onClick={() => {
                   setSubmittedInput([...submittedInput, userInput]);
                   onSend();
                 }}
                 disabled={isLoading || !userInput.trim()}
-                className="px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-1 md:flex-initial text-sm md:text-base"
+                className="w-full md:w-auto px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm md:text-base"
                 title="Enviar mensaje"
               >
                 {isLoading ? "Enviando..." : "Enviar"}
@@ -339,7 +406,7 @@ export default function ChatPage() {
               <button
                 onClick={handleClearChat}
                 disabled={isLoading || !conversationId}
-                className="px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-1 md:flex-initial text-sm md:text-base"
+                className="w-full md:w-auto px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm md:text-base"
                 title="Limpiar todos los mensajes de esta conversación"
               >
                 Limpiar chat
@@ -351,7 +418,9 @@ export default function ChatPage() {
       {/* Sources - oculto en móviles */}
       <section className="hidden md:block border-l border-app text-app w-64 lg:w-72 h-screen overflow-y-auto">
         <div className="p-3 md:p-4">
-          <h2 className="text-base md:text-lg font-semibold mb-4">Last sources</h2>
+          <h2 className="text-base md:text-lg font-semibold mb-4">
+            Last sources
+          </h2>
           {sources.length === 0 ? (
             <p className="text-muted text-sm text-center py-8">
               No sources yet
