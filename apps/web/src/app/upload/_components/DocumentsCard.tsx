@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DeleteIcon } from "@/app/_components/DeleteIcon";
 import { DocumentIcon } from "@/app/_components/DocumentIcon";
 import { Tag } from "./Tag";
@@ -10,38 +10,51 @@ interface Document {
   size: number;
   uploadedAt: string;
   status: string;
+  chunks?: number;
 }
 
 export const DocumentsCard = ({ refreshKey = 0 }: { refreshKey?: number }) => {
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: "1",
-      name: "Document 1",
-      format: "PDF",
-      size: 2097152,
-      uploadedAt: "2024-06-01",
-      status: "Indexed",
-    },
-    {
-      id: "2",
-      name: "Document 2",
-      format: "DOCX",
-      size: 1048576,
-      uploadedAt: "2024-05-28",
-      status: "Indexed",
-    },
-    {
-      id: "3",
-      name: "Document 3",
-      format: "TXT",
-      size: 512000,
-      uploadedAt: "2024-05-30",
-      status: "Indexed",
-    },
-  ]);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleDelete = (id: string) => {
-    setDocuments((prev) => prev.filter((doc) => doc.id !== id));
+  const fetchDocuments = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("http://localhost:8000/documents");
+      const data = await res.json();
+
+      if (data.status === "ok") {
+        setDocuments(data.documents);
+      }
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [refreshKey]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:8000/documents/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.status === "success") {
+        // Eliminar de la UI
+        setDocuments((prev) => prev.filter((doc) => doc.id !== id));
+      } else {
+        console.error("Error deleting document:", data.message);
+        alert("Error al eliminar el documento");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      alert("Error al eliminar el documento");
+    }
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -54,7 +67,9 @@ export const DocumentsCard = ({ refreshKey = 0 }: { refreshKey?: number }) => {
     <div className="border border-gray-300 rounded-lg p-8">
       <h1 className="text-black font-semibold text-lg">Documents</h1>
       <div className="flex flex-col gap-2 mt-4">
-        {documents.length > 0 ? (
+        {isLoading ? (
+          <p className="text-muted text-center py-4">Cargando documentos...</p>
+        ) : documents.length > 0 ? (
           documents.map((doc) => (
             <div
               key={doc.id}
@@ -66,8 +81,11 @@ export const DocumentsCard = ({ refreshKey = 0 }: { refreshKey?: number }) => {
                   <h2 className="font-semibold text-app">{doc.name}</h2>
                   <div className="text-muted space-x-2">
                     <span>{doc.format}</span>
-                    <span>{formatFileSize(doc.size)}</span>
-                    <span>{doc.uploadedAt}</span>
+                    {doc.size > 0 && <span>{formatFileSize(doc.size)}</span>}
+                    {doc.chunks !== undefined && (
+                      <span>• {doc.chunks} chunks</span>
+                    )}
+                    {doc.uploadedAt && <span>• {doc.uploadedAt}</span>}
                   </div>
                 </div>
               </div>
