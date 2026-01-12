@@ -3,11 +3,20 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { config } from "../config.js";
 
 const createTaskSchema = z.object({
-  title: z.string().describe("The title of the task"),
-  description: z.string().describe("The description of the task"),
+  title: z.string().min(3).max(120).describe("Título de la tarea"),
+  description: z.string().min(5).max(2000).describe("Descripción de la tarea"),
+  priority: z.enum(["low", "medium", "high"]).optional().describe("Prioridad"),
+  context: z
+    .object({
+      conversationId: z.string().optional(),
+      messageId: z.string().optional(),
+    })
+    .optional()
+    .describe("Contexto opcional para trazabilidad"),
 });
 
-// Schema for n8n webhook response
+type CreateTaskInput = z.infer<typeof createTaskSchema>;
+
 const n8nResponseSchema = z.object({
   ok: z.boolean(),
   taskId: z.string().optional(),
@@ -20,35 +29,43 @@ export function registerCreateTaskTool(server: McpServer) {
     "create_task",
     {
       title: "Create Task",
-      description: "Create a task with a title and description via n8n webhook",
+      description: "Crea una tarea en Google Sheets vía n8n webhook",
       inputSchema: createTaskSchema,
     },
-    async (input: any) => {
+    async (input: CreateTaskInput) => {
       try {
-        const validated = createTaskSchema.parse(input);
-
-        console.log("📤 Sending task to n8n:", validated);
-
         if (!config.n8nWebhookUrl) {
           throw new Error("n8n webhook URL is not configured");
         }
 
-        // Call n8n webhook
+        const validated = createTaskSchema.parse(input);
+
+        const payload = {
+          title: validated.title,
+          description: validated.description,
+          priority: validated.priority ?? "medium",
+          context: validated.context ?? {},
+          timestamp: new Date().toISOString(),
+        };
+
+        console.log("📤 Sending task to n8n:", payload);
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10_000);
+
         const response = await fetch(config.n8nWebhookUrl, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: validated.title,
-            description: validated.description,
-            timestamp: new Date().toISOString(),
-          }),
-        });
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        }).finally(() => clearTimeout(timeout));
 
         if (!response.ok) {
+          const errText = await response.text().catch(() => "");
           throw new Error(
-            `n8n webhook failed: ${response.status} ${response.statusText}`
+            `n8n webhook failed: ${response.status} ${
+              errText || response.statusText
+            }`
           );
         }
 
@@ -71,30 +88,37 @@ export function registerCreateTaskTool(server: McpServer) {
           };
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `✅ Task created successfully!\n\nTitle: ${
-                validated.title
-              }\nDescription: ${validated.description}\nTask ID: ${
-                result.taskId || "N/A"
-              }\nURL: ${result.url || "N/A"}`,
-            },
-          ],
+        const summary = {
+          ok: true,
+          taskId: result.taskId ?? null,
+          url: result.url ?? null,
         };
-      } catch (error) {
-        console.error("❌ Error creating task:", error);
 
         return {
           content: [
             {
               type: "text",
-              text: `❌ Error creating task: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
+              text:
+                `✅ Task created successfully\n` +
+                `Title: ${validated.title}\n` +
+                `Task ID: ${summary.taskId ?? "N/A"}\n` +
+                `URL: ${summary.url ?? "N/A"}\n\n` +
+                `Debug:\n${JSON.stringify(summary, null, 2)}`,
             },
           ],
+        };
+      } catch (error: any) {
+        const msg =
+          error?.name === "AbortError"
+            ? "Request to n8n timed out"
+            : error instanceof Error
+            ? error.message
+            : "Unknown error";
+
+        console.error("❌ Error creating task:", error);
+
+        return {
+          content: [{ type: "text", text: `❌ Error creating task: ${msg}` }],
           isError: true,
         };
       }
