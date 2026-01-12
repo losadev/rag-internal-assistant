@@ -22,6 +22,7 @@ export default function ChatPage() {
   const [actualMessages, setActualMessages] = useState<Array<any>>([]);
   const [llmMessages, setLlmMessages] = useState<Array<any>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sources, setSources] = useState<Array<any>>([]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
@@ -86,6 +87,9 @@ export default function ChatPage() {
       if (!response) {
         throw new Error("No response from server");
       }
+
+      // Guardar sources
+      setSources(response.sources || []);
 
       // Guardar respuesta del LLM en la BD
       await createMessage(conversationId, "assistant", response.answer);
@@ -190,20 +194,21 @@ export default function ChatPage() {
       <section className="border-l border-app text-app w-64 h-screen overflow-y-auto">
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4">Sources</h2>
-          <div className="flex flex-col gap-4">
-            <SourceCard
-              title="Source Document 1"
-              excerpt="lorem ipsum dolor sit amet"
-            />
-            <SourceCard
-              title="Source Document 2"
-              excerpt="consectetur adipiscing elit"
-            />
-            <SourceCard
-              title="Source Document 3"
-              excerpt="sed do eiusmod tempor incididunt"
-            />
-          </div>
+          {sources.length === 0 ? (
+            <p className="text-muted text-sm text-center py-8">
+              No sources yet
+            </p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {sources.map((source, index) => (
+                <SourceCard
+                  key={index}
+                  title={source.document}
+                  snippet={source.snippet}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
