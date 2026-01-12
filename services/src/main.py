@@ -32,6 +32,8 @@ logger.info(f"✓ Directorio de uploads: {UPLOAD_DIR}")
 
 class ChatRequest(BaseModel):
     message: str
+    conversation_id: Optional[str] = None
+    message_id: Optional[str] = None
 
 
 class Source(BaseModel):
@@ -48,7 +50,11 @@ class ChatResponse(BaseModel):
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
     logger.info(f"[CHAT] Mensaje recibido: {req.message}")
-    result = rag_chain.invoke(req.message)
+    result = rag_chain.invoke({
+        "question": req.message,
+        "conversation_id": req.conversation_id,
+        "message_id": req.message_id
+    })
     logger.info(f"[CHAT] Respuesta generada con {len(result.get('sources', []))} fuentes")
     return result
 

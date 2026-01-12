@@ -150,6 +150,11 @@ export default function ChatPage() {
       setIsLoading(true);
       const userMessage = userInput as string;
 
+      // Generar IDs únicos para la petición
+      const messageId = `msg_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
+
       // Mostrar el mensaje del usuario inmediatamente (optimistic update)
       setActualMessages((prev) => [
         ...prev,
@@ -172,8 +177,12 @@ export default function ChatPage() {
         );
       }
 
-      // Obtener respuesta del RAG
-      const response = await sendChatMessage(userMessage);
+      // Obtener respuesta del RAG con conversationId y messageId
+      const response = await sendChatMessage(
+        userMessage,
+        conversationId,
+        messageId
+      );
 
       if (!response) {
         throw new Error("No response from server");
@@ -258,11 +267,12 @@ export default function ChatPage() {
   return (
     <div className="flex h-full   ">
       {/* Sidebar */}
-      <section className="border-r border-app w-64 h-full">
-        <div className="p-4">
+      {/* Sidebar de conversaciones - oculto en móviles */}
+      <section className="hidden md:flex md:flex-col border-r border-app w-64 lg:w-72 h-full">
+        <div className="p-3 md:p-4">
           <button
             onClick={handleNewConversation}
-            className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+            className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors text-sm md:text-base"
           >
             + New Conversation
           </button>
@@ -280,9 +290,10 @@ export default function ChatPage() {
           </div>
         </div>
       </section>
+      {/* Sección principal del chat */}
       <section className="flex flex-col flex-1 ">
         {/* Chat messages */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-8 py-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 py-4 space-y-4">
           {isLoadingMessages ? (
             <div className="flex items-center justify-center h-full">
               <LoadingIndicator text="Cargando mensajes" />
@@ -302,8 +313,8 @@ export default function ChatPage() {
           )}
         </div>
         {/* Input */}
-        <div className="border-t border-app p-4 flex-shrink-0 bg-app">
-          <div className="flex flex-col gap-2 justify-center px-4">
+        <div className="border-t border-app p-3 md:p-4 flex-shrink-0 bg-app">
+          <div className="flex flex-col gap-2 justify-center px-2 md:px-4">
             <Input
               onChange={handleInputChange}
               onSubmit={() => {
@@ -313,14 +324,14 @@ export default function ChatPage() {
               isLoading={isLoading}
               value={userInput}
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => {
                   setSubmittedInput([...submittedInput, userInput]);
                   onSend();
                 }}
                 disabled={isLoading || !userInput.trim()}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors w-fit"
+                className="px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-1 md:flex-initial text-sm md:text-base"
                 title="Enviar mensaje"
               >
                 {isLoading ? "Enviando..." : "Enviar"}
@@ -328,7 +339,7 @@ export default function ChatPage() {
               <button
                 onClick={handleClearChat}
                 disabled={isLoading || !conversationId}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors w-fit"
+                className="px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-1 md:flex-initial text-sm md:text-base"
                 title="Limpiar todos los mensajes de esta conversación"
               >
                 Limpiar chat
@@ -337,10 +348,10 @@ export default function ChatPage() {
           </div>
         </div>
       </section>
-      {/* Sources */}
-      <section className="border-l border-app text-app w-64 h-screen overflow-y-auto">
-        <div className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Sources</h2>
+      {/* Sources - oculto en móviles */}
+      <section className="hidden md:block border-l border-app text-app w-64 lg:w-72 h-screen overflow-y-auto">
+        <div className="p-3 md:p-4">
+          <h2 className="text-base md:text-lg font-semibold mb-4">Last sources</h2>
           {sources.length === 0 ? (
             <p className="text-muted text-sm text-center py-8">
               No sources yet
