@@ -3,12 +3,14 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { ConversationCard } from "./_components/ConversationCard";
 import { Input } from "./_components/Input";
 import { SourceCard } from "./_components/SourceCard";
+import { SnippetModal } from "./_components/SnippetModal";
 import {
   createConversation,
   createMessage,
   getConversations,
   getMessages,
   clearConversationMessages,
+  updateTitleConversation,
 } from "@/lib/supabase-queries";
 import { useConversationContext } from "@/context";
 import { sendChatMessage } from "@/lib/api";
@@ -23,6 +25,10 @@ export default function ChatPage() {
   const [llmMessages, setLlmMessages] = useState<Array<any>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sources, setSources] = useState<Array<any>>([]);
+  const [selectedSnippet, setSelectedSnippet] = useState<{
+    title: string;
+    snippet: string;
+  } | null>(null);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
@@ -41,7 +47,30 @@ export default function ChatPage() {
   const getConversationsList = async () => {
     try {
       const conversations = await getConversations();
-      setConversations(conversations);
+
+      // Obtener el primer y último mensaje de cada conversación
+      const conversationsWithMessages = await Promise.all(
+        conversations.map(async (conv) => {
+          try {
+            const messages = await getMessages(conv.id);
+            const firstMessage = messages?.[0]?.content || "Nueva conversación";
+            const lastMessage = messages?.[messages.length - 1]?.content || "";
+            return {
+              ...conv,
+              title: firstMessage.substring(0, 50), // Limitar a 50 caracteres
+              lastMessage: lastMessage.substring(0, 50), // Limitar a 50 caracteres
+            };
+          } catch {
+            return {
+              ...conv,
+              title: "Nueva conversación",
+              lastMessage: "",
+            };
+          }
+        })
+      );
+
+      setConversations(conversationsWithMessages);
     } catch (e: any) {
       console.error("Error fetching conversations:", e.message);
     }
@@ -81,6 +110,16 @@ export default function ChatPage() {
       // Guardar mensaje del usuario
       await createMessage(conversationId, "user", userInput as string);
 
+      // Actualizar el título de la conversación con el primer mensaje si es la primera
+      const messages = await getMessages(conversationId);
+      if (messages.length === 1) {
+        // Es el primer mensaje, actualizar el título
+        await updateTitleConversation(
+          userInput.substring(0, 50),
+          conversationId
+        );
+      }
+
       // Obtener respuesta del RAG
       const response = await sendChatMessage(userInput as string);
 
@@ -97,8 +136,9 @@ export default function ChatPage() {
       // Limpiar input
       setUserInput("");
 
-      // Actualizar mensajes en pantalla
+      // Actualizar mensajes en pantalla y lista de conversaciones
       await getMessagesFromDb();
+      await getConversationsList();
     } catch (error: any) {
       console.error("Error submitting input:", error);
       alert(`Error: ${error?.message || "Unknown error occurred"}`);
@@ -134,6 +174,33 @@ export default function ChatPage() {
     }
   };
 
+  const handleDeleteConversation = async (
+    convId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+
+    if (!confirm("¿Estás seguro de que deseas eliminar esta conversación?")) {
+      return;
+    }
+
+    try {
+      await clearConversationMessages(convId);
+      // Actualizar lista de conversaciones
+      await getConversationsList();
+      // Si era la conversación activa, limpiar
+      if (conversationId === convId) {
+        setConversationId("");
+        setActualMessages([]);
+        setSources([]);
+      }
+      console.log("✓ Conversación eliminada");
+    } catch (error: any) {
+      console.error("Error deleting conversation:", error);
+      alert(`Error al eliminar la conversación: ${error?.message}`);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-app overflow-hidden">
       {/* Sidebar */}
@@ -150,8 +217,10 @@ export default function ChatPage() {
               <ConversationCard
                 key={conv.id}
                 title={conv.title}
+                lastMessage={conv.lastMessage}
                 isActive={conversationId === conv.id}
                 onClick={() => setConversationId(conv.id)}
+                onDelete={(e) => handleDeleteConversation(conv.id, e)}
               />
             ))}
           </div>
@@ -205,12 +274,25 @@ export default function ChatPage() {
                   key={index}
                   title={source.document}
                   snippet={source.snippet}
+                  onClick={() =>
+                    setSelectedSnippet({
+                      title: source.document,
+                      snippet: source.snippet,
+                    })
+                  }
                 />
               ))}
             </div>
           )}
         </div>
       </section>
+      {/* Snippet Modal */}
+      <SnippetModal
+        isOpen={selectedSnippet !== null}
+        onClose={() => setSelectedSnippet(null)}
+        title={selectedSnippet?.title || ""}
+        snippet={selectedSnippet?.snippet || ""}
+      />
     </div>
   );
 }
