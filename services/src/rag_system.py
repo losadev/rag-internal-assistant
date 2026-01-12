@@ -1,4 +1,4 @@
-from .config import EMBEDDING_MODEL, GENERATION_MODEL, PERSIST_DIR, SEARCH_K
+from .config import EMBEDDING_MODEL, GENERATION_MODEL, PERSIST_DIR, SEARCH_K, N8N_WEBHOOK_URL
 from .prompts import RAG_PROMPT
 
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -9,10 +9,44 @@ from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import os
 import logging
+import requests
+from datetime import datetime
+import uuid
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def send_to_n8n_webhook(question: str, response: str, conversation_id: str = None, message_id: str = None):
+    """Envía información a n8n cuando la IA no sabe responder"""
+    try:
+        payload = {
+            "question": question,
+            "response": response,
+            "timestamp": datetime.now().isoformat(),
+            "conversation_id": conversation_id or str(uuid.uuid4()),
+            "message_id": message_id or str(uuid.uuid4())
+        }
+        
+        logger.info(f"[N8N] 🚀 Iniciando envío a webhook")
+        logger.info(f"[N8N] 📍 URL: {N8N_WEBHOOK_URL}")
+        logger.info(f"[N8N] 📦 Payload: {payload}")
+        
+        webhook_response = requests.post(N8N_WEBHOOK_URL, json=payload, timeout=10)
+        
+        logger.info(f"[N8N] 📡 Status code: {webhook_response.status_code}")
+        logger.info(f"[N8N] 📄 Response text: {webhook_response.text}")
+        
+        if webhook_response.status_code == 200:
+            logger.info(f"[N8N] ✅ Notificación enviada exitosamente")
+        else:
+            logger.warning(f"[N8N] ⚠️ Webhook respondió con código: {webhook_response.status_code}")
+    except requests.exceptions.Timeout:
+        logger.error(f"[N8N] ⏱️ Timeout al conectar con n8n webhook")
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"[N8N] 🔌 Error de conexión: {e}")
+    except Exception as e:
+        logger.error(f"[N8N] ❌ Error enviando a webhook: {e}", exc_info=True)
 
 def initialize_rag_system():
     logger.info(f"Inicializando RAG system con PERSIST_DIR: {PERSIST_DIR}")
@@ -99,7 +133,7 @@ def initialize_rag_system():
         return sources
 
     # retrieve -> (si vacío) -> LLM
-    def answer_question(question: str):
+    def answer_question(question: str, conversation_id: str = None, message_id: str = None):
         logger.info(f"[QUERY] Pregunta: {question}")
         docs = retriever.invoke(question)
         logger.info(f"[RETRIEVER] Documentos encontrados: {len(docs)}")
@@ -107,8 +141,14 @@ def initialize_rag_system():
         # si no hay evidencia, no inventamos
         if not docs:
             logger.warning("⚠️ No se encontraron documentos relevantes")
+            no_info_response = "I don't know based on the provided documents."
+            
+            # Enviar notificación a n8n
+            logger.info("[DEBUG] ⚡ Enviando a n8n por falta de documentos")
+            send_to_n8n_webhook(question, no_info_response, conversation_id, message_id)
+            
             return {
-                "answer": "No lo sé basándome en los documentos proporcionados.",
+                "answer": no_info_response,
                 "sources": []
             }
 
@@ -126,9 +166,25 @@ def initialize_rag_system():
                 prompt.format(context=context, question=question)
             )
 
+            answer_text = response.content
             logger.info(f"✓ Respuesta generada")
+            
+            # Detectar si la respuesta indica falta de información (español e inglés)
+            no_info_keywords = [
+                # Español
+                "no tengo información", "no lo sé", "no puedo responder", "no encuentro información",
+                "no sé", "no dispongo", "no cuento con",
+                # Inglés
+                "i don't know", "i do not know", "i don't have", "i cannot answer",
+                "no information", "based on the provided documents"
+            ]
+            if any(keyword in answer_text.lower() for keyword in no_info_keywords):
+                logger.warning("⚠️ La IA no tiene información suficiente")
+                logger.info("[DEBUG] ⚡ Enviando a n8n por respuesta sin información")
+                send_to_n8n_webhook(question, answer_text, conversation_id, message_id)
+            
             return {
-                "answer": response.content,
+                "answer": answer_text,
                 "sources": sources
             }
         except Exception as e:
@@ -138,7 +194,22 @@ def initialize_rag_system():
                 "sources": sources
             }
 
-    rag_chain = RunnableLambda(answer_question)
+    # Wrapper para manejar el input que puede ser string o dict
+    def rag_chain_wrapper(input_data):
+        if isinstance(input_data, str):
+            # Compatibilidad con llamadas simples (solo pregunta)
+            return answer_question(input_data)
+        elif isinstance(input_data, dict):
+            # Llamadas con metadata adicional
+            return answer_question(
+                question=input_data.get("question"),
+                conversation_id=input_data.get("conversation_id"),
+                message_id=input_data.get("message_id")
+            )
+        else:
+            raise ValueError("Input debe ser string o dict")
+
+    rag_chain = RunnableLambda(rag_chain_wrapper)
 
     return rag_chain, vector_store
 

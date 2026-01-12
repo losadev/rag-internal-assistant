@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DocumentsCard } from "./_components/DocumentsCard";
 import { Header } from "./_components/Header";
 import { KnowledgeBaseCard } from "./_components/KnowledgeBase Card";
@@ -11,29 +11,45 @@ export default function UploadPage() {
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
   const [knowledgeBaseData, setKnowledgeBaseData] = useState({
-    documents: 3,
-    chunks: 84,
-    lastUpdated: "2026-01-08",
+    documents: 0,
+    chunks: 0,
+    lastUpdated: "",
   });
+
+  const fetchDocumentsCount = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/documents/count");
+      const data = await res.json();
+      if (data.status === "ok") {
+        setKnowledgeBaseData({
+          documents: data.documents,
+          chunks: data.chunks,
+          lastUpdated: new Date().toISOString().split("T")[0],
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching documents count:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocumentsCount();
+  }, []);
 
   const handleUploadSuccess = () => {
     setRefreshKey((prev) => prev + 1);
-    setKnowledgeBaseData((prev) => ({
-      ...prev,
-      documents: prev.documents + 1,
-      lastUpdated: new Date().toISOString().split("T")[0],
-    }));
+    fetchDocumentsCount();
   };
 
   return (
-    <div className="bg-app min-h-screen px-40 py-8">
+    <div className="bg-app min-h-screen px-4 md:px-8 lg:px-20 xl:px-40 py-4 md:py-8">
       <Header />
-      <section className="mt-8 flex gap-8">
-        <div className="flex flex-2 flex-col gap-6">
+      <section className="mt-4 md:mt-8 flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-8">
+        <div className="flex flex-1 flex-col gap-4 md:gap-6">
           <UploadFileCard onUploadSuccess={handleUploadSuccess} />
           <DocumentsCard key={refreshKey} />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 lg:max-w-md">
           <KnowledgeBaseCard
             key={refreshKey}
             documents={knowledgeBaseData.documents}
