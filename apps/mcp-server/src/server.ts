@@ -1,5 +1,4 @@
 import express from "express";
-import { randomUUID } from "crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { registerAllTools } from "./tools/index.js";
@@ -8,6 +7,21 @@ async function main() {
   const app = express();
   app.use(express.json({ limit: "2mb" }));
 
+  // Healthcheck para Render
+  app.get("/health", (_req, res) => res.json({ ok: true }));
+
+  // Auth mínima (opcional pero recomendado)
+  app.use((req, res, next) => {
+    const key = process.env.MCP_API_KEY;
+    if (!key) return next();
+
+    const auth = req.headers.authorization || "";
+    if (auth !== `Bearer ${key}`) {
+      return res.status(401).json({ ok: false, error: "Unauthorized" });
+    }
+    next();
+  });
+
   const mcpServer = new McpServer({
     name: "RAG Internal Assistant",
     version: "1.0.0",
@@ -15,25 +29,21 @@ async function main() {
 
   registerAllTools(mcpServer);
 
-  /**
-   * Stateful mode (recomendado para server en Render):
-   * - genera sessionId
-   * - mantiene estado en memoria
-   */
+  // ✅ Stateless: más estable para Next/Vercel + Render
   const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined, // stateless
+    sessionIdGenerator: undefined,
   });
 
-  // Conecta el server al transport UNA vez
   await mcpServer.connect(transport);
 
   app.post("/mcp", (req, res) => {
-    // OJO: según tu doc, si ya tienes body parseado, pásalo como 3er parámetro
-    transport.handleRequest(req, res, req.body);
+    try {
+      transport.handleRequest(req, res, req.body);
+    } catch (err) {
+      console.error("MCP handleRequest error:", err);
+      res.status(500).json({ ok: false, error: "MCP handleRequest error" });
+    }
   });
-
-  
-
 
   const PORT = Number(process.env.PORT || 4000);
   app.listen(PORT, () => {
@@ -41,4 +51,7 @@ async function main() {
   });
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error("Fatal MCP server error:", err);
+  process.exit(1);
+});

@@ -17,12 +17,14 @@ const createTaskSchema = z.object({
 
 type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
-const n8nResponseSchema = z.object({
-  ok: z.boolean(),
-  taskId: z.string().optional(),
-  url: z.string().optional(),
-  error: z.string().optional(),
-});
+const n8nResponseSchema = z
+  .object({
+    ok: z.boolean().optional(),
+    taskId: z.string().optional(),
+    url: z.string().optional(),
+    error: z.string().optional(),
+  })
+  .passthrough(); // Permite propiedades adicionales del webhook
 
 export function registerCreateTaskTool(server: McpServer) {
   server.registerTool(
@@ -74,7 +76,10 @@ export function registerCreateTaskTool(server: McpServer) {
 
         console.log("✅ n8n response:", result);
 
-        if (!result.ok) {
+        // Considerar como error solo si ok es explícitamente false o si hay un error
+        const isError = result.ok === false || result.error;
+
+        if (isError) {
           return {
             content: [
               {
