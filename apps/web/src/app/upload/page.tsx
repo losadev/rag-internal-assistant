@@ -28,7 +28,7 @@ export default function UploadPage() {
         });
       }
     } catch (error) {
-      console.error("Error fetching documents count:", error);
+      // Error fetching documents count
     }
   };
 

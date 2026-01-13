@@ -64,7 +64,7 @@ export default function ChatPage() {
         try {
           setSources(JSON.parse(savedSources));
         } catch (e) {
-          console.error("Error parsing saved sources:", e);
+          // Error parsing saved sources
         }
       }
     }
@@ -78,9 +78,8 @@ export default function ChatPage() {
     try {
       const conversation = await createConversation();
       setConversationId(conversation.id);
-      console.log("New conversation created:", conversation);
     } catch (e: any) {
-      console.error("Error creating conversation:", e.message);
+      // Error creating conversation
     }
   };
 
@@ -112,7 +111,7 @@ export default function ChatPage() {
 
       setConversations(conversationsWithMessages);
     } catch (e: any) {
-      console.error("Error fetching conversations:", e.message);
+      // Error fetching conversations
     }
   };
 
@@ -132,7 +131,7 @@ export default function ChatPage() {
       const messages = await getMessages(conversationId);
       setActualMessages(messages);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      // Error fetching messages
     } finally {
       setIsLoadingMessages(false);
     }
@@ -204,7 +203,7 @@ export default function ChatPage() {
       // Actualizar lista de conversaciones
       await getConversationsList();
     } catch (error: any) {
-      console.error("Error submitting input:", error);
+      // Error submitting input
       alert(`Error: ${error?.message || "Unknown error occurred"}`);
     } finally {
       setIsLoading(false);
@@ -229,9 +228,7 @@ export default function ChatPage() {
       setIsLoading(true);
       await clearConversationMessages(conversationId);
       setActualMessages([]);
-      console.log("✓ Conversación limpiada");
     } catch (error: any) {
-      console.error("Error clearing chat:", error);
       alert(`Error al limpiar el chat: ${error?.message}`);
     } finally {
       setIsLoading(false);
@@ -258,9 +255,7 @@ export default function ChatPage() {
         setActualMessages([]);
         setSources([]);
       }
-      console.log("✓ Conversación eliminada");
     } catch (error: any) {
-      console.error("Error deleting conversation:", error);
       alert(`Error al eliminar la conversación: ${error?.message}`);
     }
   };

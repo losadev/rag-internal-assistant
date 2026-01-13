@@ -27,7 +27,7 @@ export const DocumentsCard = ({ refreshKey = 0 }: { refreshKey?: number }) => {
         setDocuments(data.documents);
       }
     } catch (error) {
-      console.error("Error fetching documents:", error);
+      // Error fetching documents
     } finally {
       setIsLoading(false);
     }
@@ -48,11 +48,11 @@ export const DocumentsCard = ({ refreshKey = 0 }: { refreshKey?: number }) => {
         // Eliminar de la UI
         setDocuments((prev) => prev.filter((doc) => doc.id !== id));
       } else {
-        console.error("Error deleting document:", data.message);
+        // Error deleting document
         alert("Error al eliminar el documento");
       }
     } catch (error) {
-      console.error("Error deleting document:", error);
+      // Error deleting document
       alert("Error al eliminar el documento");
     }
   };

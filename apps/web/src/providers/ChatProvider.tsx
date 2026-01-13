@@ -5,8 +5,6 @@ import { ConversationContext } from "@/context";
 export function ChatProvider({ children }: { children: ReactNode }) {
   const [actualConversationId, setActualConversationId] = useState<string>("");
 
-  console.log("ChatProvider - conversationId:", actualConversationId);
-
   return (
     <ConversationContext.Provider
       value={{

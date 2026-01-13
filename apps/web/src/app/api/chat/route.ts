@@ -29,11 +29,8 @@ export async function POST(req: Request) {
       cache: "no-store",
     });
 
-    console.log("[API] Python service response status:", res.status);
-
     if (!res.ok) {
       const text = await res.text();
-      console.error("[API] Python service error:", text);
       return NextResponse.json(
         { error: `AI service error: ${res.status}`, details: text },
         { status: 500 }
