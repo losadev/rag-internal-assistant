@@ -1,7 +1,7 @@
 # Configuracion de los modelos
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"  # Local embedding model
-QUERY_MODEL = "mixtral-8x7b-32768"  # Groq model
-GENERATION_MODEL = "mixtral-8x7b-32768"  # Groq model
+EMBEDDING_MODEL = "text-embedding-3-small"
+QUERY_MODEL = "gpt-4o-mini"
+GENERATION_MODEL = "gpt-4o-mini"
 
 # Configuracion de la base de datos vectorial
 import os

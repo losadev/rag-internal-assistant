@@ -2,16 +2,10 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from .rag_system import initialize_rag_system,add_documents_to_rag
+from .rag_system import initialize_rag_system, add_documents_to_rag
 import os
-import logging
-
-# Configurar logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 app = FastAPI(title="AI Service")
-logger.info("🚀 Iniciando AI Service")
 
 # Configurar CORS
 app.add_middleware(
@@ -22,12 +16,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-rag_chain, vector_store = initialize_rag_system()
+# Lazy initialization
+rag_chain = None
+vector_store = None
+
+def get_rag_system():
+    global rag_chain, vector_store
+    if rag_chain is None or vector_store is None:
+        rag_chain, vector_store = initialize_rag_system()
+    return rag_chain, vector_store
+
+# Health check endpoint
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 # Crear carpeta para archivos temporales
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-logger.info(f"✓ Directorio de uploads: {UPLOAD_DIR}")
 
 
 class ChatRequest(BaseModel):
@@ -49,13 +55,12 @@ class ChatResponse(BaseModel):
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    logger.info(f"[CHAT] Mensaje recibido: {req.message}")
-    result = rag_chain.invoke({
+    rag, _ = get_rag_system()
+    result = rag.invoke({
         "question": req.message,
         "conversation_id": req.conversation_id,
         "message_id": req.message_id
     })
-    logger.info(f"[CHAT] Respuesta generada con {len(result.get('sources', []))} fuentes")
     return result
 
 
@@ -63,22 +68,15 @@ def chat(req: ChatRequest):
 async def upload_file(file: UploadFile = File(...)):
     """Subir archivo PDF, TXT o Markdown al sistema RAG"""
     try:
-        logger.info(f"[UPLOAD] Archivo recibido: {file.filename}")
-        # Guardar archivo temporalmente
+        _, vs = get_rag_system()
         file_path = os.path.join(UPLOAD_DIR, file.filename)
         with open(file_path, "wb") as f:
             content = await file.read()
             f.write(content)
         
-        logger.info(f"[UPLOAD] Archivo guardado temporalmente en: {file_path}")
-        
-        # Cargar documento al RAG
-        add_documents_to_rag(file_path, vector_store)
-        
-        logger.info(f"[UPLOAD] ✅ Respuesta exitosa para: {file.filename}")
+        add_documents_to_rag(file_path, vs)
         return {"status": "success", "message": f"Archivo {file.filename} cargado correctamente"}
     except Exception as e:
-        logger.error(f"[UPLOAD] ❌ Error: {str(e)}", exc_info=True)
         return {"status": "error", "message": str(e)}
 
 
@@ -86,7 +84,8 @@ async def upload_file(file: UploadFile = File(...)):
 def get_documents_count():
     """Endpoint para contar documentos únicos y chunks totales"""
     try:
-        collection = vector_store._collection
+        _, vs = get_rag_system()
+        collection = vs._collection
         
         # Obtener total de chunks
         total_chunks = collection.count()
@@ -102,11 +101,8 @@ def get_documents_count():
                 unique_docs.add(filename)
         
         doc_count = len(unique_docs)
-        
-        logger.info(f"[COUNT] Documentos únicos: {doc_count}, Chunks totales: {total_chunks}")
         return {"documents": doc_count, "chunks": total_chunks, "status": "ok"}
     except Exception as e:
-        logger.error(f"[COUNT] Error contando documentos: {e}", exc_info=True)
         return {"documents": 0, "chunks": 0, "status": "error", "error": str(e)}
 
 
@@ -114,13 +110,13 @@ def get_documents_count():
 def get_documents():
     """Listar todos los documentos únicos con su metadata"""
     try:
-        collection = vector_store._collection
+        _, vs = get_rag_system()
+        collection = vs._collection
         
         # Obtener todos los documentos
         results = collection.get(include=["metadatas"])
         
         if not results or not results.get("metadatas"):
-            logger.info("[DOCUMENTS] No hay documentos en la BD")
             return {"documents": [], "status": "ok"}
         
         # Agrupar por source (archivo) para obtener documentos únicos
@@ -148,11 +144,8 @@ def get_documents():
             docs_dict[filename]["chunks"] += 1
         
         documents = list(docs_dict.values())
-        logger.info(f"[DOCUMENTS] Encontrados {len(documents)} documentos únicos")
-        
         return {"documents": documents, "status": "ok"}
     except Exception as e:
-        logger.error(f"[DOCUMENTS] Error obteniendo documentos: {e}", exc_info=True)
         return {"documents": [], "status": "error", "error": str(e)}
 
 
@@ -160,14 +153,13 @@ def get_documents():
 def delete_document(document_id: str):
     """Eliminar un documento y todos sus chunks del vector store"""
     try:
-        logger.info(f"[DELETE] Eliminando documento: {document_id}")
-        collection = vector_store._collection
+        _, vs = get_rag_system()
+        collection = vs._collection
         
         # Obtener todos los IDs de chunks que pertenecen a este documento
         results = collection.get(include=["metadatas"])
         
         if not results or not results.get("metadatas"):
-            logger.warning(f"[DELETE] No hay documentos en la BD")
             return {"status": "error", "message": "No documents found"}
         
         # Encontrar IDs de chunks que pertenecen a este documento
@@ -180,20 +172,16 @@ def delete_document(document_id: str):
                 chunk_ids_to_delete.append(results["ids"][i])
         
         if not chunk_ids_to_delete:
-            logger.warning(f"[DELETE] Documento no encontrado: {document_id}")
             return {"status": "error", "message": f"Document {document_id} not found"}
         
         # Eliminar chunks
-        logger.info(f"[DELETE] Eliminando {len(chunk_ids_to_delete)} chunks")
         collection.delete(ids=chunk_ids_to_delete)
         
         # Persistir cambios
-        vector_store.persist()
-        logger.info(f"[DELETE] ✅ Documento {document_id} eliminado exitosamente")
+        vs.persist()
         
         return {"status": "success", "message": f"Document {document_id} deleted", "chunks_deleted": len(chunk_ids_to_delete)}
     except Exception as e:
-        logger.error(f"[DELETE] Error eliminando documento: {e}", exc_info=True)
         return {"status": "error", "message": str(e)}
 
 
@@ -201,14 +189,13 @@ def delete_document(document_id: str):
 def get_document_chunks(document_id: str):
     """Obtener todos los chunks de un documento específico"""
     try:
-        logger.info(f"[CHUNKS] Obteniendo chunks para documento: {document_id}")
-        collection = vector_store._collection
+        _, vs = get_rag_system()
+        collection = vs._collection
         
         # Obtener todos los documentos con contenido y metadata
         results = collection.get(include=["metadatas", "documents"])
         
         if not results or not results.get("metadatas"):
-            logger.warning(f"[CHUNKS] No hay documentos en la BD")
             return {"chunks": [], "status": "ok"}
         
         # Filtrar chunks que pertenecen a este documento
@@ -227,8 +214,6 @@ def get_document_chunks(document_id: str):
                     }
                 })
         
-        logger.info(f"[CHUNKS] Encontrados {len(chunks)} chunks para {document_id}")
         return {"chunks": chunks, "total": len(chunks), "status": "ok"}
     except Exception as e:
-        logger.error(f"[CHUNKS] Error obteniendo chunks: {e}", exc_info=True)
         return {"chunks": [], "status": "error", "error": str(e)}
