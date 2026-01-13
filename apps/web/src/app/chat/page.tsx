@@ -4,6 +4,7 @@ import { ConversationCard } from "./_components/ConversationCard";
 import { Input } from "./_components/Input";
 import { SourceCard } from "./_components/SourceCard";
 import { SnippetModal } from "./_components/SnippetModal";
+import { CreateTaskModal } from "./_components/CreateTaskModal";
 import { LoadingIndicator } from "./_components/LoadingIndicator";
 import {
   createConversation,
@@ -32,6 +33,11 @@ export default function ChatPage() {
     snippet: string;
   } | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
+  const [selectedMessageForTask, setSelectedMessageForTask] = useState<{
+    content: string;
+    messageId?: string;
+  } | null>(null);
 
   // Guardar conversationId en localStorage cuando cambia
   useEffect(() => {
@@ -265,7 +271,7 @@ export default function ChatPage() {
       {/* Backdrop para móviles */}
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/30 bg-opacity-50 z-40 md:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
@@ -368,6 +374,14 @@ export default function ChatPage() {
                     key={index}
                     message={msg.content}
                     role={msg.role as "user" | "assistant"}
+                    sources={msg.role === "assistant" ? sources : undefined}
+                    onCreateTask={() => {
+                      setSelectedMessageForTask({
+                        content: msg.content,
+                        messageId: msg.id,
+                      });
+                      setIsCreateTaskModalOpen(true);
+                    }}
                   />
                 ))}
               {isLoading && <LoadingIndicator />}
@@ -446,6 +460,24 @@ export default function ChatPage() {
         title={selectedSnippet?.title || ""}
         snippet={selectedSnippet?.snippet || ""}
       />
+      {/* Create Task Modal */}
+      {selectedMessageForTask && (
+        <CreateTaskModal
+          isOpen={isCreateTaskModalOpen}
+          onClose={() => {
+            setIsCreateTaskModalOpen(false);
+            setSelectedMessageForTask(null);
+          }}
+          sources={sources}
+          userMessage={
+            actualMessages.filter((msg) => msg.role === "user").pop()
+              ?.content || ""
+          }
+          assistantMessage={selectedMessageForTask.content}
+          conversationId={conversationId}
+          messageId={selectedMessageForTask.messageId}
+        />
+      )}
     </div>
   );
 }

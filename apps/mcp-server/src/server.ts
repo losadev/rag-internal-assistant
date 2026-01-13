@@ -40,16 +40,28 @@ async function main() {
     try {
       transport.handleRequest(req, res, req.body);
     } catch (err) {
+<<<<<<< HEAD
+=======
+      console.error("MCP handleRequest error:", err);
+>>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
       res.status(500).json({ ok: false, error: "MCP handleRequest error" });
     }
   });
 
   const PORT = Number(process.env.PORT || 4000);
   app.listen(PORT, () => {
+<<<<<<< HEAD
     // Server started
+=======
+    console.log(`[http] MCP server running at http://localhost:${PORT}/mcp`);
+>>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
   });
 }
 
 main().catch((err) => {
+<<<<<<< HEAD
+=======
+  console.error("Fatal MCP server error:", err);
+>>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
   process.exit(1);
 });
