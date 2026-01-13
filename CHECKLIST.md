@@ -15,6 +15,7 @@
 ## 🚀 Próximos pasos en Render
 
 ### 1. MCP Server (5-10 minutos)
+
 ```
 Render Dashboard → New + → Web Service
 ├─ Repository: losadev/rag-internal-assistant
@@ -31,6 +32,7 @@ Render Dashboard → New + → Web Service
 ```
 
 ### 2. Python Backend (10-15 minutos)
+
 ```
 Render Dashboard → New + → Web Service
 ├─ Repository: losadev/rag-internal-assistant
@@ -48,6 +50,7 @@ Render Dashboard → New + → Web Service
 ```
 
 ### 3. Actualizar Vercel (2 minutos)
+
 ```
 Vercel Dashboard → Project Settings → Environment Variables
 ├─ NEXT_PUBLIC_MCP_SERVER_URL = https://rag-mcp-server.onrender.com
@@ -57,12 +60,12 @@ Vercel Dashboard → Project Settings → Environment Variables
 
 ## 📊 Timeline Total Esperado
 
-| Paso | Tiempo | Acción |
-|------|--------|--------|
-| 1. MCP Deploy | 10 min | Esperar build verde en Render |
-| 2. Python Deploy | 15 min | Esperar build verde en Render |
-| 3. Vercel Update | 5 min | Update env vars y redeploy |
-| **TOTAL** | **30 min** | ⏱️ Completado |
+| Paso             | Tiempo     | Acción                        |
+| ---------------- | ---------- | ----------------------------- |
+| 1. MCP Deploy    | 10 min     | Esperar build verde en Render |
+| 2. Python Deploy | 15 min     | Esperar build verde en Render |
+| 3. Vercel Update | 5 min      | Update env vars y redeploy    |
+| **TOTAL**        | **30 min** | ⏱️ Completado                 |
 
 ## 🔍 Verificación Post-Deploy
 
@@ -83,13 +86,13 @@ https://your-vercel-app.vercel.app
 
 ## 🆘 Si algo falla
 
-| Problema | Solución |
-|----------|----------|
-| Render build fails | Revisa logs → Build tab en Render |
-| API key error | Verifica env vars en Render |
-| CORS error | Revisa logs Python backend |
-| Frontend blank | Verifica URLs en Vercel env vars |
-| Timeout | Upgrade a plan Standard (free duerme) |
+| Problema           | Solución                              |
+| ------------------ | ------------------------------------- |
+| Render build fails | Revisa logs → Build tab en Render     |
+| API key error      | Verifica env vars en Render           |
+| CORS error         | Revisa logs Python backend            |
+| Frontend blank     | Verifica URLs en Vercel env vars      |
+| Timeout            | Upgrade a plan Standard (free duerme) |
 
 ## 📁 Archivos de Referencia
 

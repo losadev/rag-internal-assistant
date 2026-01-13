@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node --loader ts-node/esm src/server.ts",
+    "start": "node dist/server.js",
     "dev": "cross-env MCP_MODE=http tsx watch src/server.ts",
     "dev:stdio": "cross-env MCP_MODE=stdio tsx watch src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"

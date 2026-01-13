@@ -28,7 +28,7 @@ git status
 | **Runtime**        | `Node`                       |
 | **Root Directory** | `apps/mcp-server`            |
 | **Build Command**  | `pnpm install && pnpm build` |
-| **Start Command**  | `pnpm start`                 |
+| **Start Command**  | `node dist/server.js`        |
 | **Instance Type**  | `Standard`                   |
 | **Region**         | `Ohio` (o tu región)         |
 
