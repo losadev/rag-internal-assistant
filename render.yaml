@@ -30,5 +30,5 @@ services:
         value: 1
       - key: CHROMA_DB_PATH
         value: /tmp/chroma_db
-      - key: GROQ_API_KEY
+      - key: OPENAI_API_KEY
         sync: false
