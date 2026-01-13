@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useCallback } from "react";
 import { ConversationCard } from "./_components/ConversationCard";
 import { Input } from "./_components/Input";
 import { SourceCard } from "./_components/SourceCard";
@@ -80,7 +80,7 @@ export default function ChatPage() {
     setUserInput(e.target.value);
   };
 
-  const handleNewConversation = async () => {
+  const handleNewConversation = useCallback(async () => {
     try {
       const conversation = await createConversation();
       setConversationId(conversation.id);
@@ -88,9 +88,9 @@ export default function ChatPage() {
     } catch (e: any) {
       console.error("Error creating conversation:", e.message);
     }
-  };
+  }, [setConversationId]);
 
-  const getConversationsList = async () => {
+  const getConversationsList = useCallback(async () => {
     try {
       const conversations = await getConversations();
 
@@ -120,11 +120,11 @@ export default function ChatPage() {
     } catch (e: any) {
       console.error("Error fetching conversations:", e.message);
     }
-  };
+  }, []);
 
   useEffect(() => {
     getConversationsList();
-  }, [handleNewConversation]);
+  }, [getConversationsList]);
 
   const handleInsertMessage = async (message: string) => {
     try {
