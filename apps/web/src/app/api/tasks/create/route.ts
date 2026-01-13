@@ -64,11 +64,7 @@ async function handleSseStream(response: Response): Promise<any> {
               const jsonData = JSON.parse(data);
               lastJsonRpcResponse = jsonData;
             } catch (e) {
-<<<<<<< HEAD
               // SSE parse error - ignore
-=======
-              console.error("Failed to parse SSE data:", data, e);
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
             }
           }
         }
@@ -106,14 +102,6 @@ async function fetchMcpRequest(
 
   if (!response.ok) {
     const text = await response.text();
-<<<<<<< HEAD
-=======
-    console.error("MCP Error Response:", {
-      status: response.status,
-      statusText: response.statusText,
-      body: text,
-    });
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
     throw new Error(`MCP error ${response.status}: ${text}`);
   }
 
@@ -167,10 +155,6 @@ export async function POST(request: NextRequest) {
 
     if (!initState?.initialized) {
       try {
-<<<<<<< HEAD
-=======
-        console.log("Initializing MCP Server...");
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
         const initResponse = await fetchMcpRequest(mcpEndpoint, {
           jsonrpc: "2.0",
           id: `init_${Date.now()}`,
@@ -186,10 +170,6 @@ export async function POST(request: NextRequest) {
         });
 
         sessionId = initResponse.newSessionId;
-<<<<<<< HEAD
-=======
-        console.log("MCP Server initialized, Session ID:", sessionId);
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
 
         // 2. Enviar InitializedNotification
         try {
@@ -202,14 +182,8 @@ export async function POST(request: NextRequest) {
             },
             sessionId
           );
-<<<<<<< HEAD
         } catch (error) {
           // Notification send failed - ignore
-=======
-          console.log("MCP Server initialized notification sent");
-        } catch (error) {
-          console.error("Could not send initialized notification:", error);
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
         }
 
         // Guardar estado de inicialización
@@ -222,10 +196,6 @@ export async function POST(request: NextRequest) {
           error.message?.includes("already initialized") ||
           error.message?.includes("Server already initialized")
         ) {
-<<<<<<< HEAD
-=======
-          console.log("Server already initialized, continuing...");
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
           mcpInitializationState.set(initStateKey, {
             initialized: true,
           });
@@ -235,10 +205,6 @@ export async function POST(request: NextRequest) {
       }
     } else {
       sessionId = initState.sessionId;
-<<<<<<< HEAD
-=======
-      console.log("Reusing existing MCP session:", sessionId);
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
     }
 
     // 3. Llamar al tool create_task
@@ -271,21 +237,12 @@ export async function POST(request: NextRequest) {
       sessionId
     );
 
-<<<<<<< HEAD
-=======
-    console.log("MCP Response:", JSON.stringify(mcpResponse.result, null, 2));
-
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
     // Verificar si el tool retornó un error
     if (mcpResponse.result.isError) {
       const errorMessage =
         mcpResponse.result.result?.content?.[0]?.text ||
         mcpResponse.result.error?.message ||
         "Unknown error from MCP tool";
-<<<<<<< HEAD
-=======
-      console.error("MCP Tool Error:", errorMessage);
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
       throw new Error(`MCP tool failed: ${errorMessage}`);
     }
 
@@ -301,10 +258,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(parsed, { status: parsed.ok ? 201 : 400 });
   } catch (err: any) {
-<<<<<<< HEAD
-=======
-    console.error("Error creating task:", err);
->>>>>>> 90670cc1091f6f93f632873205ad445c5f9fe507
     return NextResponse.json(
       { error: err?.message || "Error al crear la tarea" },
       { status: 500 }

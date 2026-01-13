@@ -19,8 +19,8 @@ import { sendChatMessage } from "@/lib/api";
 import { ChatMessage } from "./_components/ChatMessage";
 
 export default function ChatPage() {
-  const [userInput, setUserInput] = useState<String>("");
-  const [submittedInput, setSubmittedInput] = useState<String[]>([]);
+  const [userInput, setUserInput] = useState<string>("");
+  const [submittedInput, setSubmittedInput] = useState<string[]>([]);
   const [conversations, setConversations] = useState<Array<any>>([]);
   const { conversationId, setConversationId } = useConversationContext();
   const [actualMessages, setActualMessages] = useState<Array<any>>([]);
@@ -76,7 +76,7 @@ export default function ChatPage() {
     }
   }, []);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setUserInput(e.target.value);
   };
 
