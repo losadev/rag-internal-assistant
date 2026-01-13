@@ -20,7 +20,7 @@ services:
     runtime: python-3
     plan: standard
     buildCommand: cd services && pip install -r requirements.txt
-    startCommand: cd services && uvicorn src.main:app --host 0.0.0.0 --port 8000
+    startCommand: cd services && python run.py
     envVars:
       - key: ENVIRONMENT
         value: production
