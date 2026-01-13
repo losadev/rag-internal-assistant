@@ -2,7 +2,6 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from .rag_system import initialize_rag_system, add_documents_to_rag
 import os
 
 app = FastAPI(title="AI Service")
@@ -19,17 +18,43 @@ app.add_middleware(
 # Lazy initialization
 rag_chain = None
 vector_store = None
+initialization_error = None
+_rag_system_functions = None
+
+def _load_rag_system():
+    """Importa el sistema RAG de forma lazy"""
+    global _rag_system_functions
+    if _rag_system_functions is None:
+        try:
+            from .rag_system import initialize_rag_system, add_documents_to_rag
+            _rag_system_functions = {
+                'initialize': initialize_rag_system,
+                'add_documents': add_documents_to_rag
+            }
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise RuntimeError(f"Failed to load RAG system: {str(e)}")
+    return _rag_system_functions
 
 def get_rag_system():
-    global rag_chain, vector_store
+    global rag_chain, vector_store, initialization_error
     if rag_chain is None or vector_store is None:
-        rag_chain, vector_store = initialize_rag_system()
+        try:
+            funcs = _load_rag_system()
+            rag_chain, vector_store = funcs['initialize']()
+            initialization_error = None
+        except Exception as e:
+            initialization_error = str(e)
+            import traceback
+            traceback.print_exc()
+            raise
     return rag_chain, vector_store
 
-# Health check endpoint
+# Health check endpoint - responde incluso si RAG falla
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "rag_available": rag_chain is not None}
 
 # Crear carpeta para archivos temporales
 UPLOAD_DIR = "uploads"
@@ -68,13 +93,14 @@ def chat(req: ChatRequest):
 async def upload_file(file: UploadFile = File(...)):
     """Subir archivo PDF, TXT o Markdown al sistema RAG"""
     try:
+        funcs = _load_rag_system()
         _, vs = get_rag_system()
         file_path = os.path.join(UPLOAD_DIR, file.filename)
         with open(file_path, "wb") as f:
             content = await file.read()
             f.write(content)
         
-        add_documents_to_rag(file_path, vs)
+        funcs['add_documents'](file_path, vs)
         return {"status": "success", "message": f"Archivo {file.filename} cargado correctamente"}
     except Exception as e:
         return {"status": "error", "message": str(e)}

@@ -7,6 +7,12 @@ GENERATION_MODEL = "gpt-4o-mini"
 import os
 PERSIST_DIR = os.path.join(os.path.dirname(__file__), "..", "chroma_db")
 
+# Asegurar que el directorio existe (pero no fallar si hay error)
+try:
+    os.makedirs(PERSIST_DIR, exist_ok=True)
+except Exception:
+    pass
+
 # Configuracion del retriever
 SEARCH_TYPE = "mmr"
 MMR_DIVERSITY_LAMBDA = 0.7
