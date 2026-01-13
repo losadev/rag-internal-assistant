@@ -3,6 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import os
+import sys
+
+# Print startup message immediately (before everything else)
+print("=" * 60, file=sys.stderr)
+print("FastAPI application starting...", file=sys.stderr)
+print(f"Python: {sys.version}", file=sys.stderr)
+print(f"Working directory: {os.getcwd()}", file=sys.stderr)
+print("=" * 60, file=sys.stderr)
 
 app = FastAPI(title="AI Service")
 
