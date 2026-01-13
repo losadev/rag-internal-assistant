@@ -1,7 +1,7 @@
 # Configuracion de los modelos
-EMBEDDING_MODEL = "text-embedding-3-large"
-QUERY_MODEL = "gpt-4o-mini" # hace multiples queries, por lo tanto es mas economico
-GENERATION_MODEL = "gpt-4o" # genera la respuesta final, por lo tanto es mas caro
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"  # Local embedding model
+QUERY_MODEL = "mixtral-8x7b-32768"  # Groq model
+GENERATION_MODEL = "mixtral-8x7b-32768"  # Groq model
 
 # Configuracion de la base de datos vectorial
 import os

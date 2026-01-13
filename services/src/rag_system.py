@@ -1,7 +1,8 @@
 from .config import EMBEDDING_MODEL, GENERATION_MODEL, PERSIST_DIR, SEARCH_K, N8N_WEBHOOK_URL
 from .prompts import RAG_PROMPT
 
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_groq import ChatGroq
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda
@@ -60,7 +61,7 @@ def initialize_rag_system():
     try:
         # Vector DB (docs -> embeddings)
         vector_store = Chroma(
-            embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL),
+            embedding_function=HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL),
             persist_directory=PERSIST_DIR,
         )
         
@@ -83,13 +84,13 @@ def initialize_rag_system():
         
         # Recrear
         vector_store = Chroma(
-            embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL),
+            embedding_function=HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL),
             persist_directory=PERSIST_DIR,
         )
         logger.info(f"✓ Base de datos recreada")
 
     # LLM (solo para generar respuesta final)
-    llm_generation = ChatOpenAI(model=GENERATION_MODEL, temperature=0)
+    llm_generation = ChatGroq(model=GENERATION_MODEL, temperature=0)
     logger.info(f"✓ LLM cargado: {GENERATION_MODEL}")
 
     retriever = vector_store.as_retriever(
